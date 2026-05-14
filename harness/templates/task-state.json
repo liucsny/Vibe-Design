@@ -96,6 +96,22 @@
     "artifact": "projects/<task-id>/current/research-reference.md",
     "sources": []
   },
+  "design_system": {
+    "required": true,
+    "status": "none",
+    "adapter_id": "content-ecosystem-design",
+    "source_file_key": "gYZObm5AoqSEwYDfclY4HJ",
+    "source_url": "https://www.figma.com/design/gYZObm5AoqSEwYDfclY4HJ/Content-Ecosystem-Design",
+    "artifact": "projects/<task-id>/current/design-system-reference.md",
+    "adapter_registry": ".codex/design-systems/content-ecosystem-design/registry.md",
+    "component_index_paths": [
+      ".codex/design-systems/content-ecosystem-design/component-library-index.md",
+      ".codex/design-systems/content-ecosystem-design/component-selection-rules.md"
+    ],
+    "recipe_paths": [],
+    "component_families": [],
+    "open_questions": []
+  },
   "revision": {
     "status": "none",
     "current_revision": "",

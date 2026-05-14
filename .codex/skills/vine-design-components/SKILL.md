@@ -7,6 +7,24 @@ description: Vine component guidance for Final UI generation or later UI review/
 
 Choose components by task semantics, then map to the closest available Figma / Semi / Vine component. If no reliable component exists, record the gap in `final-ui-reference.md`.
 
+## Active Design System Adapter
+
+Use the active adapter from `task-state.json.design_system` and `design-system-reference.md`.
+
+Default adapter:
+- `.codex/design-systems/content-ecosystem-design/`
+
+Before choosing components:
+- read the task `design-system-reference.md`
+- read the adapter `component-library-index.md`
+- read the adapter `component-selection-rules.md`
+
+Hard rules:
+- Use public adapter components when a matching family exists.
+- Do not use components whose names start with `_`; they are internal-only in the default Content Ecosystem adapter.
+- Do not redraw public components with primitives.
+- If a public component cannot be imported, create an Auto Layout-backed local component-like fallback and record the reason.
+
 ## Global Rules
 
 - Preserve action hierarchy.

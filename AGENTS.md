@@ -2,9 +2,9 @@
 
 Before any task:
 
-1. Read `README.md`.
-2. Read `docs/workflow-contract.md`.
-3. Read `docs/verification.md`.
+1. Read `README.md` for the workflow map and context loading policy.
+2. Read only the relevant section of `docs/workflow-contract.md` for the active stage or decision.
+3. Read `docs/verification.md` only before delivery, QA, harness edits, or gate debugging.
 4. If working on an existing project, check `projects/<task-id>/progress.md` and `projects/<task-id>/session-handoff.md`.
 5. For a new PRD, initialize the task yourself. Users should only need to paste the PRD or attach a PRD document.
 
@@ -24,7 +24,7 @@ scripts/init-task-from-prd.sh --text "<prd text>" --title "<short-title>"
 
 - PRD is the source of truth.
 - The direct upstream artifact is the current stage's execution contract.
-- Agents may read PRD and passing upstream artifacts.
+- Agents read the PRD, direct upstream artifact, current `task-state.json`, and summarized context artifacts first. Load older passing artifacts only for fidelity checks.
 - Agents write only their owned artifact plus `task-state.json`.
 - Project-specific progress and handoff files live in `projects/<task-id>/`.
 - Use the generated `task_id` from `task-state.json`; do not rename it.
@@ -40,6 +40,14 @@ scripts/init-task-from-prd.sh --text "<prd text>" --title "<short-title>"
 - Final delivery requires Scenario / Quality Check with `P0/P1 remaining: 0`.
 - After delivery, PM feedback must enter the revision loop through `revision-manager`; do not directly patch Figma or upstream artifacts from unstructured feedback.
 - Revisions should preserve previous frames by default and create versioned replacement frames unless the user explicitly asks to overwrite.
+
+## Context Loading
+
+- Load the active stage skill only; do not preload every skill.
+- Use `baseline-reference.md`, `research-reference.md`, and `design-system-reference.md` as compressed context. Avoid raw Figma dumps, screenshots, or web results unless the active stage truly needs them.
+- Load Vine design skills only during Final UI generation, Scenario / Quality Check, or later UI review/fix work.
+- Load detailed references, such as `structured-figma-gates.md` or adapter recipes, only when the current stage names them as required.
+- Keep `progress.md` and `session-handoff.md` short: current state, next action, blockers, and latest evidence only.
 
 ## Stage Order
 

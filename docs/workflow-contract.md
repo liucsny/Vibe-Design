@@ -9,6 +9,7 @@ PRD
 -> Context Intake:
      optional baseline-reference
      optional research-reference
+     required design-system-reference
 -> intent-requirement
 -> flow-spec
 -> surface-generation-spec
@@ -34,6 +35,16 @@ projects/<task-id>/current/
 ```
 
 Reusable workflow content lives in `docs/`, `harness/templates/`, `scripts/`, `.codex/agents/`, and `.codex/skills/`.
+
+## Context Loading Policy
+
+Default context should stay small:
+- Always start with `task-state.json`, PRD, and the active stage's direct upstream artifact.
+- Read summarized context artifacts only when their status is summarized: `baseline-reference.md`, `research-reference.md`, `design-system-reference.md`.
+- Read earlier passing artifacts only to resolve fidelity questions, not as default prompt material.
+- Load exactly one active stage skill unless that skill explicitly delegates to a context intake or Final UI skill.
+- Load detailed references only on demand: adapter recipes selected by `design-system-reference.md`, Vine design skills only at Final UI/QA, and `structured-figma-gates.md` only at Final UI/QA.
+- Do not paste raw Figma metadata dumps, full screenshot analyses, raw web results, or full design-system libraries into downstream artifacts.
 
 ## State Rules
 
@@ -74,6 +85,18 @@ Surface Generation Spec provides the user-flow grouping and intended frame order
 
 Scenario / Quality Check verifies canvas assembly before delivery.
 
+## Structured Figma Delivery
+
+Final UI must be maintainable Figma, not a flat visual reconstruction.
+
+Root workflow rule:
+- Final UI reads the active design system through `design-system-reference.md`; it does not hard-code a library.
+- Surface Generation Spec records required component families, structure, text sizing, truncation, and fallback expectations.
+- Final UI generates componentized, Auto Layout-backed frames and records evidence in `final-ui-reference.md`.
+- Scenario / Quality Check validates screenshot quality plus node-tree maintainability.
+
+Detailed hard gates live in `.codex/skills/final-ui-generation/references/structured-figma-gates.md` and are loaded only during Final UI or Scenario / Quality Check.
+
 ## Baseline Design Intake
 
 Context Intake has independent optional checks. Baseline and research are not mutually exclusive.
@@ -113,6 +136,35 @@ Triggers include:
 
 Research supplements the PRD. It cannot override the PRD, and downstream stages read only the compact research artifact unless fresh verification is needed.
 
+## Design System Intake
+
+Use `design-system-reference.md` for every UI generation task.
+
+The active adapter is configured in `task-state.json.design_system` and defaults to `content-ecosystem-design`. To swap design systems, add another folder under `.codex/design-systems/<adapter_id>/` with the same adapter files and update `task-state.json.design_system`.
+
+Required adapter files:
+- `registry.md`
+- `component-library-index.md`
+- `component-selection-rules.md`
+- `foundations.md` when token/style decisions are needed
+
+`task-state.json.design_system` records:
+- `required`
+- `status`: `none`, `missing`, `blocked`, or `summarized`
+- `adapter_id`
+- `source_file_key`
+- `source_url`
+- `artifact`: `projects/<task-id>/current/design-system-reference.md`
+- `adapter_registry`
+- `component_index_paths`
+- `recipe_paths`
+- `component_families`
+- `open_questions`
+
+Final UI is blocked when `design_system.required` is true and `design_system.status` is not `summarized`.
+
+Downstream stages read the compact design-system artifact and the small number of adapter reference files it points to. Avoid repeatedly loading full Figma library metadata.
+
 ## Blocked Input
 
 Use `blocked_input_request` only for missing user-provided data, such as `figma.target_url`.
@@ -150,18 +202,8 @@ Routed stages treat `revision-request.md` as the direct upstream contract and pr
 
 ## Delivery Gates
 
-First-pass delivery requires:
-- all non-revision-only stages `passing`
-- baseline summarized when `baseline.required` is true
-- research summarized when `research.required` is true
-- Figma target, Section evidence, and generated frame ids recorded
-- Scenario / Quality Check passing
-- `P0/P1 remaining: 0`
-- P2 risks and open questions recorded
+First-pass delivery requires all non-revision-only stages to be `passing`, required context intake to be summarized, generated Figma evidence to be recorded, and Scenario / Quality Check to report `P0/P1 remaining: 0`.
 
-Revision reviewability requires:
-- current `revision-request.md`
-- routed implementation evidence
-- changed frame ids when Final UI changed
-- Scenario / Quality Check over affected scenarios plus primary-flow regression
-- `P0/P1 remaining: 0`
+Revision delivery additionally requires a current `revision-request.md`, routed implementation evidence, changed frame ids when UI changed, affected-scenario QA plus primary-flow regression, and `P0/P1 remaining: 0`.
+
+Use `docs/verification.md` for the full checklist. Load `.codex/skills/final-ui-generation/references/structured-figma-gates.md` only during Final UI generation, Final UI loopback fixes, or Scenario / Quality Check.

@@ -13,6 +13,7 @@ In revision mode, use `revision-request.md` only for routed surface-level change
 
 If `baseline-reference.md` exists, include affected areas and do-not-change areas in the generation spec.
 If `research-reference.md` exists, include relevant reference patterns and anti-patterns without copying product UI.
+If `design-system-reference.md` exists, use it as the component/style contract and list task-relevant component families in `Structured Figma Requirements`.
 
 ## Output
 
@@ -39,7 +40,23 @@ Use this structure:
 
 ## Interaction And Review Rules
 
+## Structured Figma Requirements
+- reusable components:
+- local component variants:
+- Auto Layout containers:
+- nesting hierarchy:
+- direct child limit:
+- repeated pattern threshold:
+- text resizing rules:
+- truncation rules:
+- primitive exceptions:
+
 ## Design System Guidance
+- adapter:
+- required public component families:
+- internal components excluded:
+- fallback families:
+- adapter references to load:
 
 ## Baseline Preservation
 - baseline frames/sources:
@@ -64,3 +81,20 @@ Use this structure:
 ```
 
 Keep this as generation context, not a final prompt artifact. It should be specific enough for `figma-ui-designer` to generate multiple UI drafts without reinterpreting the PRD.
+
+## Structured Figma Contract
+
+The Surface Generation Spec must define the maintainability contract that Final UI will be judged against.
+
+Include only task-specific decisions:
+- reusable component families and local fallback variants
+- required Auto Layout regions and semantic nesting per major frame
+- direct child limit, defaulting to `<= 8`
+- repeated pattern threshold, defaulting to `2+ occurrences require component/component-like reuse`
+- text resizing and truncation rules for task content that may overflow
+- allowed primitive exceptions
+- active adapter id, required public families, excluded internal components, and fallback families
+
+Do not accept a Surface Generation Spec that only lists visual frames and content blocks. It must give the Final UI designer enough structural direction to avoid flat primitive-only Figma output.
+
+Do not copy the full gate reference into this artifact. Final UI and QA load `.codex/skills/final-ui-generation/references/structured-figma-gates.md` when they need detailed rules.

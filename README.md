@@ -9,6 +9,7 @@ PRD
   -> Context Intake
        optional Baseline Reference
        optional Research Reference
+       required Design System Reference
   -> Intent / Requirement
   -> Flow Spec
   -> Surface Generation Spec
@@ -19,6 +20,15 @@ PRD
 ```
 
 Each stage reads the PRD plus its direct upstream contract, and writes only its owned artifact plus `task-state.json`.
+
+## Context Loading
+
+Use progressive disclosure by default:
+- start from `task-state.json`, PRD, and the active stage's direct upstream artifact
+- read summarized context artifacts only when present: `baseline-reference.md`, `research-reference.md`, `design-system-reference.md`
+- load one active stage skill, plus only the small reference files it explicitly asks for
+- avoid raw Figma metadata, raw screenshots, full web search logs, and full design-system files unless the current stage needs them
+- use `docs/verification.md` for delivery or harness checks, not as default generation context
 
 ## Repository Layout
 
@@ -42,6 +52,7 @@ projects/<task-id>/
     ├── prd.md
     ├── baseline-reference.md
     ├── research-reference.md
+    ├── design-system-reference.md
     ├── intent-requirement.md
     ├── flow-spec.md
     ├── surface-generation-spec.md
@@ -88,19 +99,9 @@ Revisions preserve prior Figma frames by default and create versioned replacemen
 
 ## Delivery Gate
 
-First-pass delivery requires:
-- all non-revision-only stages passing
-- baseline summarized when required
-- research summarized when required
-- Figma target, Section evidence, and created frame ids
-- Scenario / Quality Check with `P0/P1 remaining: 0`
-- P2 risks/open questions recorded
+Delivery is reviewable only when required stages are passing, required context intake is summarized, generated Figma evidence exists, and Scenario / Quality Check records `P0/P1 remaining: 0`.
 
-Revision reviewability requires:
-- current `revision-request.md`
-- routed-stage evidence
-- changed frame ids when UI changed
-- Scenario / Quality Check with `P0/P1 remaining: 0`
+Use `docs/verification.md` for the complete gate checklist. Use `.codex/skills/final-ui-generation/references/structured-figma-gates.md` only during Final UI or QA.
 
 ## Verification
 

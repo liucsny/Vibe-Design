@@ -21,6 +21,13 @@ if (!state.baseline || state.baseline.status !== "none") throw new Error("Templa
 if (state.baseline.artifact !== "projects/<task-id>/current/baseline-reference.md") throw new Error("Template baseline artifact path is invalid");
 if (!state.research || state.research.status !== "none") throw new Error("Template research status must default to none");
 if (state.research.artifact !== "projects/<task-id>/current/research-reference.md") throw new Error("Template research artifact path is invalid");
+if (!state.design_system || state.design_system.status !== "none") throw new Error("Template design_system status must default to none");
+if (!state.design_system.required) throw new Error("Template design_system.required must default to true");
+if (!state.design_system.adapter_id) throw new Error("Template design_system.adapter_id is missing");
+if (state.design_system.artifact !== "projects/<task-id>/current/design-system-reference.md") throw new Error("Template design_system artifact path is invalid");
+if (!Array.isArray(state.design_system.component_index_paths)) throw new Error("Template design_system.component_index_paths must be an array");
+if (!Array.isArray(state.design_system.recipe_paths)) throw new Error("Template design_system.recipe_paths must be an array");
+if (!Array.isArray(state.design_system.component_families)) throw new Error("Template design_system.component_families must be an array");
 if (!state.revision || state.revision.status !== "none") throw new Error("Template revision status must default to none");
 if (!state.figma) throw new Error("Template figma schema is missing");
 for (const key of ["target_url", "target_section", "created_section_id", "section_title_frame_id", "flow_title_frame_ids", "created_frame_ids"]) {
@@ -36,6 +43,14 @@ test -f .codex/agents/revision-manager.toml
 test -f .codex/skills/revision-request/SKILL.md
 test -f .codex/skills/baseline-reference/SKILL.md
 test -f .codex/skills/research-reference/SKILL.md
+test -f .codex/skills/design-system-reference/SKILL.md
+test -f .codex/design-systems/README.md
+test -f .codex/design-systems/content-ecosystem-design/registry.md
+test -f .codex/design-systems/content-ecosystem-design/component-library-index.md
+test -f .codex/design-systems/content-ecosystem-design/component-selection-rules.md
+test -f .codex/design-systems/content-ecosystem-design/recipes/button.md
+test -f .codex/design-systems/content-ecosystem-design/recipes/form-controls.md
+test -f .codex/design-systems/content-ecosystem-design/recipes/table.md
 echo "Context intake and revision files OK"
 
 if rg -n --hidden --glob '!.git' --glob '!scripts/verify-harness.sh' 'task-context|userflow-spec|scenario-quality-review|ui-surface-generation-spec|ui-generation-spec\.md|flow-to-surface-mapping|surface-assembly-spec|ai-interface|self-check' .; then
