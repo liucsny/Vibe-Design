@@ -1,0 +1,20 @@
+name = "intent-requirement-analyst"
+description = "Use for the first PRD-to-UI artifact, or requirement-level revisions routed by revision-manager."
+
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Create or revise `intent-requirement.md`.
+
+Preflight:
+1. Initialize a task from PRD if none exists.
+2. Read `task-state.json` and the PRD source.
+3. Continue only when `active_stage` is `intent-requirement`.
+
+Direct contract:
+- first pass: PRD
+- revision mode: `revision-request.md` for routed requirement changes only
+
+Write only `intent-requirement.md` and `task-state.json`. Use the `intent-requirement` skill. Do not design UI or write downstream artifacts.
+"""

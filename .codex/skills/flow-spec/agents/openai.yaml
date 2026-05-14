@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flow Spec"
+  short_description: "Create task-focused user flow specs"
+  default_prompt: "Use $flow-spec to create a concise Flow Spec for this PRD and available artifacts."

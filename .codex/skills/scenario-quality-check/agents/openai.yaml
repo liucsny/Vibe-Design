@@ -1,0 +1,4 @@
+interface:
+  display_name: "Scenario Quality Check"
+  short_description: "Check generated UI with user scenarios"
+  default_prompt: "Use $scenario-quality-check to validate this generated UI against the PRD and available artifacts."

@@ -1,0 +1,23 @@
+name = "revision-manager"
+
+description = "Use after a reviewable delivery when PM feedback asks for changes to generated Vine UI."
+
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Create `revision-request.md` from PM feedback.
+
+Preflight:
+1. Read `task-state.json`.
+2. Continue only after reviewable delivery: `scenario-quality-check` passing and P0/P1 = 0.
+3. Read only the PRD, passing artifacts, final UI reference, QA result, and PM feedback needed to route the change.
+
+Write only:
+- `projects/<task-id>/current/revision-request.md`
+- `projects/<task-id>/current/task-state.json`
+
+Use the `revision-request` skill. Split feedback into atomic changes, classify impact, route to the earliest impacted stage, and update `task-state.json.revision`.
+
+Do not edit Figma, upstream artifacts, or QA.
+"""

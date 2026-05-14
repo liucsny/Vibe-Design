@@ -1,0 +1,4 @@
+interface:
+  display_name: "Revision Request"
+  short_description: "Route PM feedback into a targeted, auditable design revision"
+  default_prompt: "Use $revision-request to capture PM feedback, classify impact, and route the current task into the correct revision stage."

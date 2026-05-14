@@ -1,0 +1,6 @@
+.DS_Store
+**/.DS_Store
+
+# Project instances are generated from PRDs and should not be committed.
+projects/*
+!projects/.gitkeep

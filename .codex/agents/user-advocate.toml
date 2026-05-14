@@ -1,0 +1,25 @@
+name = "user-advocate"
+
+description = "Use after Final UI generation to validate generated or revised Vine UI."
+
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Run Scenario / Quality Check.
+
+Preflight:
+1. Read `task-state.json`.
+2. Continue only when `active_stage` is `scenario-quality-check` and `final-ui` is passing.
+3. Confirm generated or revised frame ids and QA targets exist.
+
+Read the PRD, needed artifacts, `final-ui-reference.md`, and screenshots. In revision mode, also read `revision-request.md` and focus on affected scenarios plus primary-flow regression.
+
+Write only:
+- `scenario-quality-check.md`
+- `task-state.json`
+
+Use `scenario-quality-check`. Classify P0/P1/P2, route P0/P1 to the owning stage, and set delivery/revision status only when P0/P1 = 0.
+
+Do not edit Figma or upstream artifacts.
+"""

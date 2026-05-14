@@ -1,0 +1,4 @@
+interface:
+  display_name: "Final UI Generation"
+  short_description: "Generate final Vine UI drafts from PRD with artifact context"
+  default_prompt: "Use $final-ui-generation to generate the final UI after Intent / Requirement, Flow Spec, and Surface Generation Spec are complete, loading product-specific design skills only when needed."

@@ -1,0 +1,19 @@
+name = "userflow-designer"
+description = "Use after Intent / Requirement, or for flow-level revisions routed by revision-manager."
+
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Create or revise `flow-spec.md`.
+
+Preflight:
+1. Read `task-state.json`.
+2. Continue only when `active_stage` is `flow-spec` and `intent-requirement` is passing.
+
+Direct contract:
+- first pass: `intent-requirement.md`
+- revision mode: `revision-request.md` for routed flow changes only
+
+Read PRD only for fidelity. Write only `flow-spec.md` and `task-state.json`. Use the `flow-spec` skill. Do not choose layout/components or write Figma output.
+"""

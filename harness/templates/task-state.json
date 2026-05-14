@@ -1,0 +1,108 @@
+{
+  "task_id": "<task-id>",
+  "project_root": "projects/<task-id>",
+  "source_prd": {
+    "type": "text | file | link | maintenance",
+    "reference": "",
+    "derived_title": ""
+  },
+  "wip_limit": 1,
+  "active_stage": "intent-requirement",
+  "stages": [
+    {
+      "id": "intent-requirement",
+      "owner": "intent-requirement-analyst",
+      "state": "active",
+      "artifact": "projects/<task-id>/current/intent-requirement.md",
+      "depends_on": [],
+      "completion_evidence": [],
+      "blocked_reason": ""
+    },
+    {
+      "id": "flow-spec",
+      "owner": "userflow-designer",
+      "state": "not_started",
+      "artifact": "projects/<task-id>/current/flow-spec.md",
+      "depends_on": ["intent-requirement"],
+      "completion_evidence": [],
+      "blocked_reason": ""
+    },
+    {
+      "id": "surface-generation-spec",
+      "owner": "ui-architecturer",
+      "state": "not_started",
+      "artifact": "projects/<task-id>/current/surface-generation-spec.md",
+      "depends_on": ["flow-spec"],
+      "completion_evidence": [],
+      "blocked_reason": ""
+    },
+    {
+      "id": "final-ui",
+      "owner": "figma-ui-designer",
+      "state": "not_started",
+      "artifact": "projects/<task-id>/current/final-ui-reference.md",
+      "depends_on": ["surface-generation-spec"],
+      "completion_evidence": [],
+      "blocked_reason": ""
+    },
+    {
+      "id": "scenario-quality-check",
+      "owner": "user-advocate",
+      "state": "not_started",
+      "artifact": "projects/<task-id>/current/scenario-quality-check.md",
+      "depends_on": ["final-ui"],
+      "completion_evidence": [],
+      "blocked_reason": ""
+    },
+    {
+      "id": "revision-request",
+      "owner": "revision-manager",
+      "state": "not_started",
+      "artifact": "projects/<task-id>/current/revision-request.md",
+      "depends_on": ["scenario-quality-check"],
+      "completion_evidence": [],
+      "blocked_reason": "",
+      "revision_only": true
+    }
+  ],
+  "quality_gate": {
+    "p0_remaining": null,
+    "p1_remaining": null,
+    "p2_risks": [],
+    "delivery_ready": false
+  },
+  "blocked_input_request": {
+    "stage": "",
+    "reason": "",
+    "required_fields": [],
+    "optional_fields": [],
+    "prompt": "",
+    "status": "none"
+  },
+  "revision": {
+    "status": "none",
+    "current_revision": "",
+    "source": "",
+    "request_artifact": "",
+    "impacted_stage": "",
+    "base_frame_ids": [],
+    "created_frame_ids": [],
+    "superseded_frame_ids": [],
+    "open_questions": []
+  },
+  "figma": {
+    "target_url": "",
+    "target_file_key": "",
+    "target_page": "",
+    "target_section": "",
+    "mcp_status": "unknown",
+    "mcp_setup_url": "https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/",
+    "created_frame_ids": []
+  },
+  "handoff": {
+    "last_updated_by": "",
+    "last_updated_at": "",
+    "next_action": "",
+    "open_questions": []
+  }
+}
