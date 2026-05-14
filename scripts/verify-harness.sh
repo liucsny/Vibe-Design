@@ -25,9 +25,17 @@ if (!state.design_system || state.design_system.status !== "none") throw new Err
 if (!state.design_system.required) throw new Error("Template design_system.required must default to true");
 if (!state.design_system.adapter_id) throw new Error("Template design_system.adapter_id is missing");
 if (state.design_system.artifact !== "projects/<task-id>/current/design-system-reference.md") throw new Error("Template design_system artifact path is invalid");
+if (!("source_library_name" in state.design_system)) throw new Error("Template design_system.source_library_name is missing");
+if (!("source_library_key" in state.design_system)) throw new Error("Template design_system.source_library_key is missing");
+if (!("target_file_subscribed" in state.design_system)) throw new Error("Template design_system.target_file_subscribed is missing");
+if (!Array.isArray(state.design_system.required_component_keys)) throw new Error("Template design_system.required_component_keys must be an array");
+if (!Array.isArray(state.design_system.missing_component_keys)) throw new Error("Template design_system.missing_component_keys must be an array");
+if (state.design_system.component_import_policy !== "required_public_components_must_be_imported_from_figma_library") throw new Error("Template design_system.component_import_policy is invalid");
 if (!Array.isArray(state.design_system.component_index_paths)) throw new Error("Template design_system.component_index_paths must be an array");
 if (!Array.isArray(state.design_system.recipe_paths)) throw new Error("Template design_system.recipe_paths must be an array");
 if (!Array.isArray(state.design_system.component_families)) throw new Error("Template design_system.component_families must be an array");
+if (!Array.isArray(state.design_system.design_md_sources)) throw new Error("Template design_system.design_md_sources must be an array");
+if (!state.design_system.conflict_policy) throw new Error("Template design_system.conflict_policy is missing");
 if (!state.revision || state.revision.status !== "none") throw new Error("Template revision status must default to none");
 if (!state.figma) throw new Error("Template figma schema is missing");
 for (const key of ["target_url", "target_section", "created_section_id", "section_title_frame_id", "flow_title_frame_ids", "created_frame_ids"]) {
@@ -48,6 +56,11 @@ test -f .codex/design-systems/README.md
 test -f .codex/design-systems/content-ecosystem-design/registry.md
 test -f .codex/design-systems/content-ecosystem-design/component-library-index.md
 test -f .codex/design-systems/content-ecosystem-design/component-selection-rules.md
+test -f .codex/design-systems/design-md/registry.md
+test -f .codex/design-systems/design-md/component-library-index.md
+test -f .codex/design-systems/design-md/component-selection-rules.md
+test -f .codex/design-systems/design-md/foundations.md
+test -f .codex/design-systems/design-md/recipes/design-md-intake.md
 test -f .codex/design-systems/content-ecosystem-design/recipes/button.md
 test -f .codex/design-systems/content-ecosystem-design/recipes/form-controls.md
 test -f .codex/design-systems/content-ecosystem-design/recipes/table.md

@@ -5,6 +5,11 @@ description: Generate final Vine UI drafts in Figma after upstream artifacts pas
 
 # Final UI Generation
 
+**Dual-Core Input Philosophy:**
+- **Core Input 1 (Anchor):** The PRD. Use this to ensure the final UI retains the original product intent and business value.
+- **Core Input 2 (Contract):** The `surface-generation-spec.md` (or `revision-request.md` in revision mode). This is your direct execution contract for what surfaces to build and how to structure them.
+- **Auxiliary Inputs:** Use `task-state.json`, `design-system-reference.md` (for component rules), and `baseline-reference.md` as supporting context. DO NOT load older passing artifacts (like `flow-spec.md` or `intent-requirement.md`) unless there is a specific, unresolvable data gap blocking UI generation.
+
 Generate Figma UI from the direct contract:
 - first pass: `surface-generation-spec.md`
 - revision mode: `revision-request.md`
@@ -44,6 +49,21 @@ If `design_system.required` is true and `design_system.status` is not `summarize
 - set `blocked_reason: Missing summarized design system reference`
 - populate `blocked_input_request` if the adapter source is missing or inaccessible
 - run `design-system-reference` first when adapter files are available
+
+If the target Figma file is not subscribed to the required design system library:
+- mark `final-ui` blocked
+- set `blocked_reason: Target Figma file is missing required design system library`
+- set `design_system.status: blocked`
+- set `design_system.target_file_subscribed: false`
+- populate `blocked_input_request` for `figma.design_system_library_subscription`
+- ask the user to open the target Figma file and add/import the required library, naming the library and source URL
+
+If any required public component family lacks an importable `componentKey`:
+- mark `final-ui` blocked
+- set `blocked_reason: Missing importable Figma component keys`
+- set `design_system.status: blocked`
+- populate `blocked_input_request` for `design_system.required_component_keys`
+- route back to `design-system-reference` or ask the user to expose/provide the missing component library
 
 ## Revision Mode
 
@@ -89,13 +109,17 @@ Before writing frames:
 - read only the recipe files selected in `design-system-reference.md`
 - load only task-relevant adapter details; do not load the full Figma library metadata dump
 - inspect the target file and baseline frames for existing components, instances, variables, styles, and Auto Layout conventions
-- use public design-system components or instances whenever available
-- if no suitable component exists, create local reusable components or component-like structured frames for repeated controls and patterns
+- discover libraries added to the target file and verify the active design system library is subscribed
+- resolve each required public component family to an importable `componentKey` from the subscribed library
+- import public component sets/components with Figma's import APIs and instantiate them directly
+- use imported public design-system instances for every required public family
+- do not recreate public Button, Select, Input, Tag, Banner/Alert, Modal, Popover, Toast, Table, or other required public families with frames/rectangles/text
+- local reusable components or component-like structured frames are allowed only for product-specific compositions that do not exist in the adapter, and they must compose imported public components whenever those controls appear inside them
 - follow the `Structured Figma Requirements` section from `surface-generation-spec.md`
 
 Apply the Design System Gate and Structure Gate from `references/structured-figma-gates.md`.
 
-A final UI that is mostly flat primitives is not passing. Route back or fix the Figma structure before Scenario / Quality Check.
+A final UI that redraws required public Figma components instead of instantiating them is not passing. Route back or block until the target file has the required library/components.
 
 ## Text Resizing And Truncation
 
@@ -123,9 +147,11 @@ Include:
   - active design system adapter id and source file key
   - adapter reference files loaded
   - recipe files loaded
-  - public component families used, with component names and keys/node ids
+  - target file library subscription evidence, including `libraryName` and `libraryKey`
+  - public component families instantiated, with component names, `componentKey`, `assetType`, instance counts, and node ids of created instances
+  - required public component families not instantiated, if any, with blocking reason
   - internal components excluded or avoided
-  - design system fallbacks, with reason and scope
+  - design system fallbacks, with reason and scope; fallbacks must not replace required public component families
   - existing components or instances reused
   - local components or component-like frames created
   - Auto Layout hierarchy by generated frame

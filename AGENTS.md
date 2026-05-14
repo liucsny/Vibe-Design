@@ -22,9 +22,9 @@ scripts/init-task-from-prd.sh --text "<prd text>" --title "<short-title>"
 
 ## Core Rules
 
-- PRD is the source of truth.
-- The direct upstream artifact is the current stage's execution contract.
-- Agents read the PRD, direct upstream artifact, current `task-state.json`, and summarized context artifacts first. Load older passing artifacts only for fidelity checks.
+- **Dual-Core Alignment**: PRD is the "North Star" (source of truth) and the direct upstream artifact is the "Execution Contract". These are the primary inputs for any stage.
+- Agents read the PRD, direct upstream artifact, current `task-state.json`, and summarized context artifacts first.
+- **Hard Constraint for Older Artifacts**: Agents MUST NOT load older passing artifacts by default. Older passing artifacts (e.g., loading `intent-requirement.md` during `final-ui`) MAY ONLY be loaded if the direct upstream artifact contains explicit ambiguities, missing data references, or contradictions that block the current stage's execution. If loaded, it must strictly be used to resolve the specific data gap (fidelity check) and must not be used to bypass the upstream artifact's instructions.
 - Agents write only their owned artifact plus `task-state.json`.
 - Project-specific progress and handoff files live in `projects/<task-id>/`.
 - Use the generated `task_id` from `task-state.json`; do not rename it.

@@ -5,6 +5,10 @@ description: Extract a concise Intent / Requirement artifact from a PRD, brief, 
 
 # Intent Requirement
 
+**Dual-Core Input Philosophy:**
+- **Core Input 1 (Anchor & Contract):** The PRD. Since this is the first stage, the PRD serves as both the original North Star and the direct execution contract.
+- **Auxiliary Inputs:** Use `task-state.json`, `baseline-reference.md`, or `research-reference.md` only as supporting context to clarify constraints or terminology.
+
 Turn the PRD into the first workflow artifact. Keep it short, PRD-derived, and explicit about uncertainty.
 
 Ask for clarification only when the main goal, entry point, completion outcome, or gating rule is too unclear to proceed. Otherwise continue and record open questions.

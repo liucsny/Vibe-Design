@@ -5,6 +5,11 @@ description: Validate generated or revised Vine UI against PRD, screenshots, and
 
 # Scenario / Quality Check
 
+**Dual-Core Input Philosophy:**
+- **Core Input 1 (Anchor):** The PRD. Use this to ensure the delivered product actually solves the business/user problem.
+- **Core Input 2 (Contract):** The `final-ui-reference.md` (and generated Figma screenshots/metadata). This is the direct execution artifact you are auditing.
+- **Auxiliary Inputs:** Use `task-state.json` and older passing artifacts ONLY to verify if the final UI successfully implemented the specific requirements defined in those upstream specs.
+
 Inspect screenshots for generated or changed frames. Do not pass from metadata alone.
 Also inspect Figma metadata or use Figma Plugin API reads for node-tree maintainability. Do not pass from screenshots alone.
 
@@ -20,7 +25,7 @@ Load `../final-ui-generation/references/structured-figma-gates.md` only when val
 - structured Figma maintainability: primary frames use Auto Layout for major containers, repeated controls are component instances or reusable local component/component-like frames, semantic nesting exists, and flat primitive-only construction is avoided
 - hard structural thresholds: each generated screen has `8` or fewer direct child nodes, required semantic containers exist, required containers use Auto Layout, repeated patterns appearing `2` or more times are reusable, and primitive exceptions are documented with node ids
 - text sizing and overflow: each text node uses an intentional Figma resizing mode, overflow-prone fixed-width text uses truncation, multi-line fixed-height text has a maximum line/overflow strategy, and truncated decision-critical values expose their full value
-- design system adherence: active adapter is recorded, public task-relevant components are used, internal components are not used directly, and fallback components have reasons
+- design system adherence: active adapter is recorded, target library subscription is verified, public task-relevant components are imported/instantiated from Figma component keys, internal components are not used directly, and fallback components have reasons only for families missing from the adapter
 - component semantics
 - copy quality
 - adoption risk
@@ -38,6 +43,8 @@ P2: minor spacing, hierarchy, density, copy polish, or canvas assembly mismatch 
 Canvas assembly blocks review when the Section is missing, required title frames are missing, generated frames are not arranged by user flow, or the Section does not contain all generated content.
 
 Structured Figma maintainability blocks review when a generated screen is mostly loose primitive nodes, key repeated controls are not reusable, major containers do not use Auto Layout, required evidence is missing, or text overflow is unsafe. Treat detailed failures listed in `structured-figma-gates.md` as P1 and route to `final-ui`; if the Surface Generation Spec did not define structure expectations, route to `surface-generation-spec`.
+
+Design-system component failures block review. Treat any required public component family that is redrawn with primitives/local frames instead of instantiated from the Figma library as P1. Treat a missing target library subscription, missing `componentKey`, missing instance evidence, or fallback used to replace an available public component as P1. Route these issues to `final-ui` or `design-system-reference` depending on whether the missing evidence is in the generated Figma frames or the component intake artifact.
 
 P0/P1 blocks delivery and routes to the owning stage:
 
@@ -91,7 +98,9 @@ When `revision.status == active`:
 - Repeated pattern reuse:
 - Primitive exceptions reviewed:
 - Design system adapter:
-- Public components used:
+- Target library subscription:
+- Public component instances:
+- Missing public component instances:
 - Internal components excluded:
 - Fallback components reviewed:
 - TextAutoResize counts by frame:

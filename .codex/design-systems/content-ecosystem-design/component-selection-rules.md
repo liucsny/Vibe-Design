@@ -6,7 +6,10 @@
 - Do not recreate public components with primitives.
 - Do not use Playground components for production UI unless explicitly requested for exploration.
 - Record every component family used in `design-system-reference.md` and `final-ui-reference.md`.
-- If a public component exists but cannot be imported through Figma MCP, create an Auto Layout-backed local component-like fallback and record the import failure.
+- Resolve and record `libraryKey` and `componentKey` for every required public component before Final UI generation.
+- If the target file is not subscribed to Content Ecosystem Design, block Final UI and ask the user to add/import the library.
+- If a public component exists but cannot be imported through Figma MCP, block Final UI unless the missing component family is explicitly outside the required public families for this task.
+- Do not create local fallbacks for public component families such as Button, Select, Input, Tag, Banner, Modal, Popover, Toast, or Table.
 
 ## Progressive Disclosure
 - First read `registry.md`.
@@ -46,8 +49,10 @@
 - Sample/media review: `Sample Card` family
 
 ## Fallback Rules
-- Fallbacks are allowed only when no public component exists, the component cannot be imported, or the target need is outside the design system.
+- Fallbacks are allowed only when no public component exists or the target need is outside the design system.
+- Fallbacks are not allowed for public component families that exist in this adapter.
 - Fallbacks must be named `Local/<Family>/<Purpose>`.
 - Fallbacks must use Auto Layout.
 - Fallbacks must follow Content Ecosystem foundations.
+- Fallbacks must compose imported public components for any standard controls they contain.
 - Fallbacks must be listed in `final-ui-reference.md` with reason and scope.

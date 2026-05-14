@@ -30,6 +30,8 @@ Use progressive disclosure by default:
 - avoid raw Figma metadata, raw screenshots, full web search logs, and full design-system files unless the current stage needs them
 - use `docs/verification.md` for delivery or harness checks, not as default generation context
 
+DESIGN.md files can be used as source material for Design System Intake. They should be summarized into `design-system-reference.md` through the active adapter, not loaded directly by downstream stages.
+
 ## Repository Layout
 
 ```text
@@ -100,6 +102,8 @@ Revisions preserve prior Figma frames by default and create versioned replacemen
 ## Delivery Gate
 
 Delivery is reviewable only when required stages are passing, required context intake is summarized, generated Figma evidence exists, and Scenario / Quality Check records `P0/P1 remaining: 0`.
+
+Final UI must instantiate required public Figma components from the active design system library. If the target Figma file has not imported/subscribed to that library, Final UI blocks and asks the user to add it before continuing. Public components must not be redrawn with local frames.
 
 Use `docs/verification.md` for the complete gate checklist. Use `.codex/skills/final-ui-generation/references/structured-figma-gates.md` only during Final UI or QA.
 

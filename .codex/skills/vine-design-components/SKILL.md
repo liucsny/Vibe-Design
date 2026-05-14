@@ -20,10 +20,11 @@ Before choosing components:
 - read the adapter `component-selection-rules.md`
 
 Hard rules:
-- Use public adapter components when a matching family exists.
+- Use public adapter components when a matching family exists, and instantiate them directly from the Figma library.
 - Do not use components whose names start with `_`; they are internal-only in the default Content Ecosystem adapter.
 - Do not redraw public components with primitives.
-- If a public component cannot be imported, create an Auto Layout-backed local component-like fallback and record the reason.
+- If a public component cannot be imported, block Final UI or route back to Design System Reference. Do not create a local fallback for a public component family.
+- Local component-like fallbacks are allowed only for product-specific compositions that are missing from the adapter, and they must compose imported public components for standard controls.
 
 ## Global Rules
 

@@ -5,6 +5,11 @@ description: Create a concise Surface Generation Spec from a PRD, Flow Spec, and
 
 # Surface Generation Spec
 
+**Dual-Core Input Philosophy:**
+- **Core Input 1 (Anchor):** The PRD. Use this for fidelity checks against the original product goals.
+- **Core Input 2 (Contract):** The `flow-spec.md` artifact. This is your direct execution contract for task logic and interaction paths.
+- **Auxiliary Inputs:** Use `task-state.json`, `design-system-reference.md`, `baseline-reference.md`, etc., as supporting context. DO NOT load older passing artifacts (like `intent-requirement.md`) unless there is a specific data gap blocking you.
+
 Define what the Figma UI designer should create. Use the Flow Spec for task logic and the PRD for fidelity checks.
 
 Do not load Vine design skills here. Record design-system needs for Final UI generation instead.
@@ -41,7 +46,7 @@ Use this structure:
 ## Interaction And Review Rules
 
 ## Structured Figma Requirements
-- reusable components:
+- imported public components:
 - local component variants:
 - Auto Layout containers:
 - nesting hierarchy:
@@ -54,6 +59,7 @@ Use this structure:
 ## Design System Guidance
 - adapter:
 - required public component families:
+- component import policy:
 - internal components excluded:
 - fallback families:
 - adapter references to load:
@@ -87,13 +93,19 @@ Keep this as generation context, not a final prompt artifact. It should be speci
 The Surface Generation Spec must define the maintainability contract that Final UI will be judged against.
 
 Include only task-specific decisions:
-- reusable component families and local fallback variants
+- imported public component families and local fallback variants
 - required Auto Layout regions and semantic nesting per major frame
 - direct child limit, defaulting to `<= 8`
 - repeated pattern threshold, defaulting to `2+ occurrences require component/component-like reuse`
 - text resizing and truncation rules for task content that may overflow
 - allowed primitive exceptions
-- active adapter id, required public families, excluded internal components, and fallback families
+- active adapter id, required public families, component import policy, excluded internal components, and fallback families
+
+Public component import policy is mandatory:
+- Required public component families must be imported and instantiated from the active Figma library.
+- Do not specify local fallback variants for public families that exist in the adapter.
+- Local fallback variants are allowed only for task-specific compositions missing from the adapter, and must compose imported public controls when they contain buttons, selects, inputs, tags, banners, modals, popovers, toasts, or tables.
+- If the required public family cannot be imported, Final UI must block instead of drawing it.
 
 Do not accept a Surface Generation Spec that only lists visual frames and content blocks. It must give the Final UI designer enough structural direction to avoid flat primitive-only Figma output.
 

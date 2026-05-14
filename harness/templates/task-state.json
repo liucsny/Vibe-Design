@@ -102,6 +102,12 @@
     "adapter_id": "content-ecosystem-design",
     "source_file_key": "gYZObm5AoqSEwYDfclY4HJ",
     "source_url": "https://www.figma.com/design/gYZObm5AoqSEwYDfclY4HJ/Content-Ecosystem-Design",
+    "source_library_name": "Content Ecosystem Design",
+    "source_library_key": "",
+    "target_file_subscribed": null,
+    "required_component_keys": [],
+    "missing_component_keys": [],
+    "component_import_policy": "required_public_components_must_be_imported_from_figma_library",
     "artifact": "projects/<task-id>/current/design-system-reference.md",
     "adapter_registry": ".codex/design-systems/content-ecosystem-design/registry.md",
     "component_index_paths": [
@@ -110,6 +116,8 @@
     ],
     "recipe_paths": [],
     "component_families": [],
+    "design_md_sources": [],
+    "conflict_policy": "adapter_over_design_md_unless_prd_requests_new_visual_direction",
     "open_questions": []
   },
   "revision": {

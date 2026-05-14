@@ -8,9 +8,12 @@ Load this reference only during Final UI generation, Final UI revision, or Scena
 - `task-state.json.design_system.status` must be `summarized` before Final UI starts.
 - Load only the active adapter registry, component index, selection rules, and selected recipes.
 - Do not load a full Figma library metadata dump into context.
-- Relevant public component families must be imported/instantiated, or an import/access failure must be recorded.
+- The target Figma file must be subscribed to the required design system library. If not, block Final UI and ask the user to add/import the library.
+- Relevant public component families must be resolved to importable `componentKey` values and imported/instantiated directly from the Figma library.
+- Recording an import/access failure is not enough to pass when the component exists in the adapter. Missing subscription or missing `componentKey` is a blocker, not a fallback permission.
+- Public component families must not be recreated with primitives, local components, or component-like frames.
 - Internal components identified by the adapter must not be used directly. In the default adapter, names starting with `_` are internal-only.
-- `final-ui-reference.md` must record adapter id, source file key, loaded adapter files, recipe files, public component names/keys/node ids, internal exclusions, and fallback reasons.
+- `final-ui-reference.md` must record adapter id, source file key, target library subscription evidence, loaded adapter files, recipe files, public component names, `libraryKey`, `componentKey`, instance node ids/counts, internal exclusions, and fallback reasons.
 
 ## Structure Gate
 
@@ -18,7 +21,9 @@ Load this reference only during Final UI generation, Final UI revision, or Scena
 - Each generated screen must have `8` or fewer direct child nodes, excluding documented overlays and review-only labels.
 - `Page Header`, `Body`, main content regions, sidebars, panels, form groups, table/list rows, modal content, modal actions, and repeated control groups must use Auto Layout (`layoutMode != NONE`).
 - UI patterns repeated `2` or more times must be component instances, local component instances, or named Auto Layout component-like frames with the same child structure.
-- Button, Input, Select, Tag, Alert, Modal, Table Row, Metric Field, Workflow Node, Toolbar Action, and Empty/Error State must not be loose rectangle/text sibling primitives.
+- Button, Input, Select, Tag, Alert/Banner, Modal, Popover, Toast, Table, Table Row, and Toolbar Action must be imported Figma component instances when they are public families in the adapter.
+- Metric Field, Workflow Node, and Empty/Error State may be local component-like compositions only when no public adapter component exists; any Button/Input/Select/Tag/Alert/Table controls inside them must still be imported Figma component instances.
+- Key controls must not be loose rectangle/text sibling primitives.
 - Primitive exceptions are allowed only for dividers, overlays, connectors, simple media placeholders, and one-off visual marks.
 - `final-ui-reference.md` must record direct child count, Auto Layout container names/counts, repeated pattern reuse, primitive exceptions with node id/reason/scope, and fallback limitations.
 
@@ -41,7 +46,10 @@ Load this reference only during Final UI generation, Final UI revision, or Scena
 Scenario / Quality Check must fail with P1 when any of these occur:
 - missing `design-system-reference.md` while required
 - missing design system evidence in `final-ui-reference.md`
-- public adapter component redrawn with primitives without recorded import/access failure
+- target file not subscribed to the required design system library
+- missing `libraryKey` or `componentKey` for any required public component family
+- public adapter component redrawn with primitives, local components, or component-like frames
+- required public component family not instantiated directly from Figma library
 - internal adapter component used directly
 - screen direct child count exceeds `8` without documented exception
 - required semantic containers are missing
