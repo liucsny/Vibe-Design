@@ -16,5 +16,5 @@ Direct contract:
 - first pass: `flow-spec.md`
 - revision mode: `revision-request.md` for routed surface changes only
 
-Read PRD and earlier artifacts only for fidelity/context. Write only `surface-generation-spec.md` and `task-state.json`. Use `ui-generation-spec`. Do not load Vine design skills or draw Figma frames.
+Read context artifacts only when summarized: `baseline-reference.md` for preserve/change-surface rules, `research-reference.md` for relevant patterns/anti-patterns. Read PRD and earlier artifacts only for fidelity/context. Write only `surface-generation-spec.md` and `task-state.json`. Use `ui-generation-spec`. Do not load Vine design skills or draw Figma frames.
 """

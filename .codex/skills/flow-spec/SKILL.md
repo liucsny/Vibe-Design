@@ -9,6 +9,9 @@ Define how the user completes the task. Focus on actions, branches, and state tr
 
 In revision mode, use `revision-request.md` only for routed flow-level changes. Preserve unchanged flow behavior and record any requirement conflict instead of inventing new scope.
 
+If `baseline-reference.md` exists, model only affected flow changes and preserve unchanged baseline paths.
+If `research-reference.md` exists, use it for domain workflows, terminology, and failure modes.
+
 Use this structure:
 
 ```text

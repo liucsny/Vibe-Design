@@ -32,6 +32,9 @@ scripts/init-task-from-prd.sh --text "<prd text>" --title "<short-title>"
 - A stage is `passing` only after its artifact and completion evidence exist.
 - If a stage is blocked on missing user input, populate `blocked_input_request` in `task-state.json` and show a concise form-style prompt in chat.
 - After the user provides requested input, write it to `task-state.json`, clear `blocked_input_request`, and resume the blocked stage.
+- If a PRD modifies an existing UI, request or use a current Figma link/screenshot and summarize it in `baseline-reference.md`; downstream agents should read the summary, not raw baseline dumps, unless needed.
+- If a task needs background knowledge, references, best practices, or current external examples, summarize research in `research-reference.md`; downstream agents should read the summary, not raw search results, unless fresh verification is needed.
+- Baseline and research are independent optional Context Intake artifacts; one does not exclude the other.
 - Do not use Vine design skills before Final UI generation or later UI review/fix work.
 - Final UI requires Figma MCP and `task-state.json.figma.target_url`.
 - Final delivery requires Scenario / Quality Check with `P0/P1 remaining: 0`.

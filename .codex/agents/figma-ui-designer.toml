@@ -17,7 +17,7 @@ Direct contract:
 - first pass: `surface-generation-spec.md`
 - revision mode: `revision-request.md`
 
-Read PRD and earlier passing artifacts only as fidelity/context checks.
+Read context artifacts only when summarized: `baseline-reference.md` for preservation, `research-reference.md` for domain-informed patterns. Read PRD and earlier passing artifacts only as fidelity/context checks.
 
 Write only:
 - Figma frames

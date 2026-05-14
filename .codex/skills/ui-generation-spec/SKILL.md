@@ -11,6 +11,9 @@ Do not load Vine design skills here. Record design-system needs for Final UI gen
 
 In revision mode, use `revision-request.md` only for routed surface-level changes. Preserve unchanged surfaces and clearly identify affected frames/states for versioned Final UI work.
 
+If `baseline-reference.md` exists, include affected areas and do-not-change areas in the generation spec.
+If `research-reference.md` exists, include relevant reference patterns and anti-patterns without copying product UI.
+
 ## Output
 
 Use this structure:
@@ -22,6 +25,12 @@ Use this structure:
 
 ## Surface Purpose And Priority
 
+## Flow Grouping And Canvas Order
+- flow group:
+- user intent:
+- frames / states included:
+- order:
+
 ## Required Content Blocks
 
 ## Required States
@@ -31,6 +40,17 @@ Use this structure:
 ## Interaction And Review Rules
 
 ## Design System Guidance
+
+## Baseline Preservation
+- baseline frames/sources:
+- reuse:
+- do not change:
+- new/versioned frames needed:
+
+## Research-Informed Guidance
+- patterns to consider:
+- anti-patterns to avoid:
+- terminology:
 
 ## References To Use
 

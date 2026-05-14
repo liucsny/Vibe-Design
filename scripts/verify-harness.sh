@@ -17,14 +17,26 @@ for (const id of ["intent-requirement", "flow-spec", "surface-generation-spec", 
   if (!stages.has(id)) throw new Error(`Missing stage: ${id}`);
 }
 if (!stages.get("revision-request").revision_only) throw new Error("revision-request must be marked revision_only");
+if (!state.baseline || state.baseline.status !== "none") throw new Error("Template baseline status must default to none");
+if (state.baseline.artifact !== "projects/<task-id>/current/baseline-reference.md") throw new Error("Template baseline artifact path is invalid");
+if (!state.research || state.research.status !== "none") throw new Error("Template research status must default to none");
+if (state.research.artifact !== "projects/<task-id>/current/research-reference.md") throw new Error("Template research artifact path is invalid");
 if (!state.revision || state.revision.status !== "none") throw new Error("Template revision status must default to none");
+if (!state.figma) throw new Error("Template figma schema is missing");
+for (const key of ["target_url", "target_section", "created_section_id", "section_title_frame_id", "flow_title_frame_ids", "created_frame_ids"]) {
+  if (!(key in state.figma)) throw new Error(`Template figma.${key} is missing`);
+}
+if (!Array.isArray(state.figma.flow_title_frame_ids)) throw new Error("Template figma.flow_title_frame_ids must be an array");
+if (!Array.isArray(state.figma.created_frame_ids)) throw new Error("Template figma.created_frame_ids must be an array");
 if (!state.blocked_input_request || state.blocked_input_request.status !== "none") throw new Error("Template blocked_input_request status must default to none");
-console.log("Revision schema OK");
+console.log("Context intake, Figma, and revision schema OK");
 NODE
 
 test -f .codex/agents/revision-manager.toml
 test -f .codex/skills/revision-request/SKILL.md
-echo "Revision manager files OK"
+test -f .codex/skills/baseline-reference/SKILL.md
+test -f .codex/skills/research-reference/SKILL.md
+echo "Context intake and revision files OK"
 
 if rg -n --hidden --glob '!.git' --glob '!scripts/verify-harness.sh' 'task-context|userflow-spec|scenario-quality-review|ui-surface-generation-spec|ui-generation-spec\.md|flow-to-surface-mapping|surface-assembly-spec|ai-interface|self-check' .; then
   echo "Found stale workflow terms." >&2

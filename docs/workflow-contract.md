@@ -6,6 +6,9 @@ This contract defines the durable rules for turning a PRD into reviewable Vine U
 
 ```text
 PRD
+-> Context Intake:
+     optional baseline-reference
+     optional research-reference
 -> intent-requirement
 -> flow-spec
 -> surface-generation-spec
@@ -18,8 +21,9 @@ PRD
 Authority order:
 1. PRD source of truth
 2. direct upstream artifact / revision request
-3. earlier passing artifacts as context
-4. Scenario / Quality Check for delivery or loopback
+3. context intake artifacts as supporting context
+4. earlier passing artifacts as context
+5. Scenario / Quality Check for delivery or loopback
 
 Project-specific content lives only under:
 
@@ -62,6 +66,53 @@ Rules:
 
 Stage-specific output shape and detailed checks live in the matching skill. Load only the skill for the active stage.
 
+## Figma Canvas Assembly
+
+Final UI output must be organized as a reviewable Figma design package, not loose frames.
+
+Surface Generation Spec provides the user-flow grouping and intended frame order. Final UI creates or uses a containing Section, applies the standard Section/title/flow-label styling defined in `final-ui-generation`, arranges frames by interaction flow, and records Section evidence in `task-state.json` and `final-ui-reference.md`.
+
+Scenario / Quality Check verifies canvas assembly before delivery.
+
+## Baseline Design Intake
+
+Context Intake has independent optional checks. Baseline and research are not mutually exclusive.
+
+Use `baseline-reference.md` when the task is based on an existing UI.
+
+Triggers include:
+- user provides a Figma link or UI screenshot
+- PRD says current page, existing design, optimize, adjust, add entry, revamp, preserve, or do not change current design
+
+If a baseline is required but missing, block the active stage with `blocked_input_request` and ask for a Figma link or screenshot.
+
+`task-state.json.baseline` records:
+- `mode`: `none`, `figma`, or `image`
+- `required`
+- `status`: `none`, `missing`, `available`, or `summarized`
+- source URL/file and Figma file/node ids
+- `artifact`: `projects/<task-id>/current/baseline-reference.md`
+
+Downstream stages read the compact baseline artifact only when present. Avoid repeatedly loading full Figma metadata or raw screenshots.
+
+## Research Intake
+
+Use `research-reference.md` when the task needs domain background, best practices, reference products, or current external knowledge.
+
+Triggers include:
+- user asks to search, research, compare, find best practices, or find references
+- domain is unfamiliar, emerging, or fast-moving
+- task benefits from product-pattern examples
+
+`task-state.json.research` records:
+- `required`
+- `status`: `none`, `needed`, `in_progress`, or `summarized`
+- `topics`
+- `artifact`: `projects/<task-id>/current/research-reference.md`
+- `sources`
+
+Research supplements the PRD. It cannot override the PRD, and downstream stages read only the compact research artifact unless fresh verification is needed.
+
 ## Blocked Input
 
 Use `blocked_input_request` only for missing user-provided data, such as `figma.target_url`.
@@ -101,7 +152,9 @@ Routed stages treat `revision-request.md` as the direct upstream contract and pr
 
 First-pass delivery requires:
 - all non-revision-only stages `passing`
-- Figma target and generated frame ids recorded
+- baseline summarized when `baseline.required` is true
+- research summarized when `research.required` is true
+- Figma target, Section evidence, and generated frame ids recorded
 - Scenario / Quality Check passing
 - `P0/P1 remaining: 0`
 - P2 risks and open questions recorded

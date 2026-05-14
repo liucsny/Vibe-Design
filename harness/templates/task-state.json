@@ -79,6 +79,23 @@
     "prompt": "",
     "status": "none"
   },
+  "baseline": {
+    "mode": "none",
+    "required": false,
+    "status": "none",
+    "source_url": "",
+    "source_file": "",
+    "figma_file_key": "",
+    "figma_node_id": "",
+    "artifact": "projects/<task-id>/current/baseline-reference.md"
+  },
+  "research": {
+    "required": false,
+    "status": "none",
+    "topics": [],
+    "artifact": "projects/<task-id>/current/research-reference.md",
+    "sources": []
+  },
   "revision": {
     "status": "none",
     "current_revision": "",
@@ -95,6 +112,9 @@
     "target_file_key": "",
     "target_page": "",
     "target_section": "",
+    "created_section_id": "",
+    "section_title_frame_id": "",
+    "flow_title_frame_ids": [],
     "mcp_status": "unknown",
     "mcp_setup_url": "https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/",
     "created_frame_ids": []

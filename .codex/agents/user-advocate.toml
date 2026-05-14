@@ -13,7 +13,7 @@ Preflight:
 2. Continue only when `active_stage` is `scenario-quality-check` and `final-ui` is passing.
 3. Confirm generated or revised frame ids and QA targets exist.
 
-Read the PRD, needed artifacts, `final-ui-reference.md`, and screenshots. In revision mode, also read `revision-request.md` and focus on affected scenarios plus primary-flow regression.
+Read the PRD, needed artifacts, `final-ui-reference.md`, and screenshots. Read summarized context artifacts only when present: baseline for unintended drift, research for pattern fit. In revision mode, also read `revision-request.md` and focus on affected scenarios plus primary-flow regression.
 
 Write only:
 - `scenario-quality-check.md`

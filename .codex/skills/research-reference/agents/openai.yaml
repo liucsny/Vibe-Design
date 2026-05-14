@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Reference"
+  short_description: "Summarize domain research and reference product patterns"
+  default_prompt: "Use $research-reference to create a compact research summary before PRD-to-UI artifact work."

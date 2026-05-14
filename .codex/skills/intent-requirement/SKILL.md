@@ -11,6 +11,9 @@ Ask for clarification only when the main goal, entry point, completion outcome, 
 
 In revision mode, use `revision-request.md` only for routed requirement-level changes. Preserve unchanged requirements and record PM feedback conflicts with the PRD.
 
+If `baseline-reference.md` exists, distinguish new/changed requirements from current UI behavior to preserve.
+If `research-reference.md` exists, use it only to clarify domain terminology, user mental model, and risks; do not override the PRD.
+
 ## Output
 
 Use this structure:
@@ -37,6 +40,16 @@ Use this structure:
 ## Success Criteria
 
 ## Constraints From PRD
+
+## Baseline Context
+- existing UI:
+- preserve:
+- change surface:
+
+## Research Context
+- domain insights:
+- reference patterns:
+- implications:
 
 ## Flow Candidates
 - primary flow:

@@ -6,6 +6,9 @@ Vine Vibe Design turns a PM PRD into reviewable Vine UI drafts in Figma, then su
 
 ```text
 PRD
+  -> Context Intake
+       optional Baseline Reference
+       optional Research Reference
   -> Intent / Requirement
   -> Flow Spec
   -> Surface Generation Spec
@@ -37,6 +40,8 @@ projects/<task-id>/
 └── current/
     ├── task-state.json
     ├── prd.md
+    ├── baseline-reference.md
+    ├── research-reference.md
     ├── intent-requirement.md
     ├── flow-spec.md
     ├── surface-generation-spec.md
@@ -44,17 +49,6 @@ projects/<task-id>/
     ├── scenario-quality-check.md
     └── revision-request.md
 ```
-
-## Artifact Owners
-
-| Artifact | Owner |
-| --- | --- |
-| `intent-requirement.md` | `intent-requirement-analyst` |
-| `flow-spec.md` | `userflow-designer` |
-| `surface-generation-spec.md` | `ui-architecturer` |
-| `final-ui-reference.md` | `figma-ui-designer` |
-| `scenario-quality-check.md` | `user-advocate` |
-| `revision-request.md` | `revision-manager` |
 
 ## Start A Task
 
@@ -71,6 +65,8 @@ scripts/init-task-from-prd.sh --file <prd-file> --title "<short-title>"
 ```
 
 Use the generated `task_id`; do not rename it.
+
+See `docs/workflow-contract.md` for artifact ownership, Context Intake, revision routing, and delivery gates.
 
 ## Revision Loop
 
@@ -94,7 +90,9 @@ Revisions preserve prior Figma frames by default and create versioned replacemen
 
 First-pass delivery requires:
 - all non-revision-only stages passing
-- Figma target and created frame ids
+- baseline summarized when required
+- research summarized when required
+- Figma target, Section evidence, and created frame ids
 - Scenario / Quality Check with `P0/P1 remaining: 0`
 - P2 risks/open questions recorded
 

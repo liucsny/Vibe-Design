@@ -15,5 +15,5 @@ Direct contract:
 - first pass: `intent-requirement.md`
 - revision mode: `revision-request.md` for routed flow changes only
 
-Read PRD only for fidelity. Write only `flow-spec.md` and `task-state.json`. Use the `flow-spec` skill. Do not choose layout/components or write Figma output.
+Read context artifacts only when summarized: `baseline-reference.md` for existing-flow preservation, `research-reference.md` for domain patterns/terminology. Read PRD only for fidelity. Write only `flow-spec.md` and `task-state.json`. Use the `flow-spec` skill. Do not choose layout/components or write Figma output.
 """

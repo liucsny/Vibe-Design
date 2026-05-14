@@ -16,5 +16,8 @@ Direct contract:
 - first pass: PRD
 - revision mode: `revision-request.md` for routed requirement changes only
 
+If the task modifies existing UI, use `baseline-reference` first. If baseline is required but missing, block and request a Figma link or screenshot.
+If the task needs external/domain references, use `research-reference` first. Baseline and research can both apply.
+
 Write only `intent-requirement.md` and `task-state.json`. Use the `intent-requirement` skill. Do not design UI or write downstream artifacts.
 """
