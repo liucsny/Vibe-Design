@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [[ "${1:-}" != "--maintenance" ]]; then
   echo "Usage: scripts/init-task.sh --maintenance <task-id>" >&2
-  echo "For normal PRD workflows, use scripts/init-task-from-prd.sh --file <prd-file> or --text \"<prd text>\"." >&2
+  echo "For normal PRD workflows, use scripts/init-task-from-prd.sh --file <prd-file>, --text \"<prd text>\", or --lark-url <docx-or-wiki-url>." >&2
   exit 1
 fi
 
@@ -11,7 +11,7 @@ TASK_ID="${2:-}"
 
 if [[ -z "$TASK_ID" ]]; then
   echo "Usage: scripts/init-task.sh --maintenance <task-id>" >&2
-  echo "For normal PRD workflows, use scripts/init-task-from-prd.sh --file <prd-file> or --text \"<prd text>\"." >&2
+  echo "For normal PRD workflows, use scripts/init-task-from-prd.sh --file <prd-file>, --text \"<prd text>\", or --lark-url <docx-or-wiki-url>." >&2
   exit 1
 fi
 

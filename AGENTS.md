@@ -6,7 +6,7 @@ Before any task:
 2. Read only the relevant section of `docs/workflow-contract.md` for the active stage or decision.
 3. Read `docs/verification.md` only before delivery, QA, harness edits, or gate debugging.
 4. If working on an existing project, check `projects/<task-id>/progress.md` and `projects/<task-id>/session-handoff.md`.
-5. For a new PRD, initialize the task yourself. Users should only need to paste the PRD or attach a PRD document.
+5. For a new PRD, initialize the task yourself. Users should only need to paste the PRD, attach a PRD document, or provide a Feishu/Lark document link.
 
 If the PRD is an attached/local file, derive a short English title and run:
 
@@ -19,6 +19,14 @@ If the PRD is pasted in chat, derive a short English title and run:
 ```bash
 scripts/init-task-from-prd.sh --text "<prd text>" --title "<short-title>"
 ```
+
+If the PRD is a Feishu/Lark docx or wiki link, derive a short English title and run:
+
+```bash
+scripts/init-task-from-prd.sh --lark-url "<docx-or-wiki-url>" --title "<short-title>"
+```
+
+The script fetches the document through `lark-cli docs +fetch --api-version v2`, writes the fetched Markdown to `current/prd.md`, and records the original URL in `task-state.json`.
 
 ## Core Rules
 

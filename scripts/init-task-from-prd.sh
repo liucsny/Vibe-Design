@@ -6,6 +6,7 @@ usage() {
 Usage:
   scripts/init-task-from-prd.sh --file <prd-file> [--title "short english title"]
   scripts/init-task-from-prd.sh --text "<prd text>" [--title "short english title"]
+  scripts/init-task-from-prd.sh --lark-url <docx-or-wiki-url> [--title "short english title"]
 
 Creates projects/<auto-task-id>/current/task-state.json plus project progress and handoff files.
 USAGE
@@ -24,6 +25,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --text)
       MODE="text"
+      VALUE="${2:-}"
+      shift 2
+      ;;
+    --lark-url|--url|--link)
+      MODE="link"
       VALUE="${2:-}"
       shift 2
       ;;
@@ -53,9 +59,11 @@ import json
 import pathlib
 import re
 import shutil
+import subprocess
 import sys
 
 mode, value, provided_title = sys.argv[1], sys.argv[2], sys.argv[3]
+LARK_CLI_SETUP_URL = "https://bytedance.larkoffice.com/docx/PxZadXlz2o4mCmxjAvfc30H3nQg"
 
 if mode == "file":
     prd_path = pathlib.Path(value)
@@ -66,6 +74,55 @@ if mode == "file":
 elif mode == "text":
     prd_text = value
     source_reference = "inline prompt"
+elif mode == "link":
+    try:
+        result = subprocess.run(
+            [
+                "lark-cli",
+                "docs",
+                "+fetch",
+                "--api-version",
+                "v2",
+                "--doc",
+                value,
+                "--doc-format",
+                "markdown",
+                "--format",
+                "json",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        raise SystemExit(
+            "lark-cli was not found. Install and configure Feishu CLI before using --lark-url.\n"
+            f"Setup guide: {LARK_CLI_SETUP_URL}"
+        )
+    except subprocess.CalledProcessError as exc:
+        details = (exc.stderr or exc.stdout or "").strip()
+        raise SystemExit(
+            "Failed to fetch Feishu/Lark PRD with lark-cli docs +fetch. "
+            "Check CLI config, OAuth permissions, and document access.\n"
+            f"Setup guide: {LARK_CLI_SETUP_URL}\n"
+            f"{details}"
+        )
+
+    try:
+        payload = json.loads(result.stdout)
+        document = payload["data"]["document"]
+    except (KeyError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"Unexpected lark-cli response while fetching PRD: {exc}")
+
+    prd_text = (
+        document.get("content")
+        or document.get("markdown")
+        or document.get("text")
+        or ""
+    )
+    if not prd_text.strip():
+        raise SystemExit("Fetched Feishu/Lark document is empty.")
+    source_reference = value
 else:
     raise SystemExit(f"Unsupported mode: {mode}")
 
@@ -112,10 +169,12 @@ state = json.loads(template_path.read_text(encoding="utf-8").replace("<task-id>"
 state["source_prd"]["type"] = mode
 state["source_prd"]["reference"] = source_reference
 state["source_prd"]["derived_title"] = seed
+if mode == "link":
+    state["source_prd"]["original_url"] = source_reference
 
 state_file.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-if mode == "text":
+if mode in ("text", "link"):
     (task_dir / "prd.md").write_text(prd_text.strip() + "\n", encoding="utf-8")
     state["source_prd"]["reference"] = str(task_dir / "prd.md")
     state_file.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -4,6 +4,7 @@
   "source_prd": {
     "type": "text | file | link | maintenance",
     "reference": "",
+    "original_url": "",
     "derived_title": ""
   },
   "wip_limit": 1,

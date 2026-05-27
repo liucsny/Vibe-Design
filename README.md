@@ -77,6 +77,16 @@ For PRD files:
 scripts/init-task-from-prd.sh --file <prd-file> --title "<short-title>"
 ```
 
+For Feishu/Lark PRD documents:
+
+```bash
+scripts/init-task-from-prd.sh --lark-url "<docx-or-wiki-url>" --title "<short-title>"
+```
+
+This uses `lark-cli docs +fetch --api-version v2` to fetch the document as Markdown, stores it as `projects/<task-id>/current/prd.md`, and records the original URL in `task-state.json`.
+
+If `lark-cli` is missing or not configured, the script exits before creating a task and prints the setup guide: https://bytedance.larkoffice.com/docx/PxZadXlz2o4mCmxjAvfc30H3nQg
+
 Use the generated `task_id`; do not rename it.
 
 See `docs/workflow-contract.md` for artifact ownership, Context Intake, revision routing, and delivery gates.

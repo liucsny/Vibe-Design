@@ -64,6 +64,19 @@ Rules:
 - Missing user input uses `blocked_input_request`.
 - P0/P1 issues route back to the owning stage.
 
+## PRD Intake
+
+Supported PRD sources:
+- pasted text: `scripts/init-task-from-prd.sh --text "<prd text>" --title "<short-title>"`
+- local or attached Markdown/text file: `scripts/init-task-from-prd.sh --file <prd-file> --title "<short-title>"`
+- Feishu/Lark docx or wiki link: `scripts/init-task-from-prd.sh --lark-url "<docx-or-wiki-url>" --title "<short-title>"`
+
+For Feishu/Lark links, intake must use `lark-cli docs +fetch --api-version v2 --doc "<url>" --doc-format markdown --format json`. The fetched content is normalized into `projects/<task-id>/current/prd.md`, `task-state.json.source_prd.type` is `link`, `source_prd.reference` points to the local `prd.md`, and `source_prd.original_url` preserves the original document link.
+
+If `lark-cli` is missing, unconfigured, unauthenticated, or lacks document access, intake fails before task creation and must show the user the Feishu CLI setup guide: https://bytedance.larkoffice.com/docx/PxZadXlz2o4mCmxjAvfc30H3nQg
+
+Downstream stages always read the PRD from `source_prd.reference`. They should not re-fetch the Feishu/Lark document unless the user explicitly says the source document changed and asks to refresh the task.
+
 ## Stages
 
 | Stage                     | Owner                        | Writes                                                   | Direct upstream                                       |
