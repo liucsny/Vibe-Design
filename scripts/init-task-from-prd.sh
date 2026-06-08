@@ -8,7 +8,12 @@ Usage:
   scripts/init-task-from-prd.sh --text "<prd text>" [--title "short english title"]
   scripts/init-task-from-prd.sh --lark-url <docx-or-wiki-url> [--title "short english title"]
 
-Creates projects/<auto-task-id>/current/task-state.json plus project progress and handoff files.
+Creates projects/<auto-task-id>/ with the v4.1-MVP directory structure:
+  current/
+    prd.md, task-state.json, session-log.md, changelog.md
+    stories/s1/
+  logs/
+  milestones/
 USAGE
 }
 
@@ -61,9 +66,13 @@ import re
 import shutil
 import subprocess
 import sys
+import hashlib
+from datetime import datetime, timezone
 
 mode, value, provided_title = sys.argv[1], sys.argv[2], sys.argv[3]
 LARK_CLI_SETUP_URL = "https://bytedance.larkoffice.com/docx/PxZadXlz2o4mCmxjAvfc30H3nQg"
+
+# ── 1. Fetch PRD content ──────────────────────────────────────────────────────
 
 if mode == "file":
     prd_path = pathlib.Path(value)
@@ -71,24 +80,20 @@ if mode == "file":
         raise SystemExit(f"PRD file not found: {value}")
     prd_text = prd_path.read_text(encoding="utf-8")
     source_reference = str(prd_path)
+
 elif mode == "text":
     prd_text = value
-    source_reference = "inline prompt"
+    source_reference = "inline-text"
+
 elif mode == "link":
     try:
         result = subprocess.run(
             [
-                "lark-cli",
-                "docs",
-                "+fetch",
-                "--api-version",
-                "v2",
-                "--doc",
-                value,
-                "--doc-format",
-                "markdown",
-                "--format",
-                "json",
+                "lark-cli", "docs", "+fetch",
+                "--api-version", "v2",
+                "--doc", value,
+                "--doc-format", "markdown",
+                "--format", "json",
             ],
             check=True,
             capture_output=True,
@@ -96,35 +101,33 @@ elif mode == "link":
         )
     except FileNotFoundError:
         raise SystemExit(
-            "lark-cli was not found. Install and configure Feishu CLI before using --lark-url.\n"
+            "lark-cli not found. Install and configure Feishu CLI before using --lark-url.\n"
             f"Setup guide: {LARK_CLI_SETUP_URL}"
         )
     except subprocess.CalledProcessError as exc:
         details = (exc.stderr or exc.stdout or "").strip()
         raise SystemExit(
-            "Failed to fetch Feishu/Lark PRD with lark-cli docs +fetch. "
-            "Check CLI config, OAuth permissions, and document access.\n"
-            f"Setup guide: {LARK_CLI_SETUP_URL}\n"
-            f"{details}"
+            "Failed to fetch Lark document.\n"
+            f"Setup guide: {LARK_CLI_SETUP_URL}\n{details}"
         )
 
     try:
         payload = json.loads(result.stdout)
         document = payload["data"]["document"]
     except (KeyError, json.JSONDecodeError) as exc:
-        raise SystemExit(f"Unexpected lark-cli response while fetching PRD: {exc}")
+        raise SystemExit(f"Unexpected lark-cli response: {exc}")
 
     prd_text = (
-        document.get("content")
-        or document.get("markdown")
-        or document.get("text")
-        or ""
+        document.get("content") or document.get("markdown") or document.get("text") or ""
     )
     if not prd_text.strip():
-        raise SystemExit("Fetched Feishu/Lark document is empty.")
+        raise SystemExit("Fetched Lark document is empty.")
     source_reference = value
+
 else:
     raise SystemExit(f"Unsupported mode: {mode}")
+
+# ── 2. Derive task_id ─────────────────────────────────────────────────────────
 
 def first_meaningful_line(text: str) -> str:
     for raw in text.splitlines():
@@ -135,64 +138,101 @@ def first_meaningful_line(text: str) -> str:
         line = re.sub(r"^(PRD|需求|标题|Title)\s*[:：]\s*", "", line, flags=re.I)
         if line:
             return line
-    return "design task"
+    return "design-task"
 
 def slugify(text: str) -> str:
     text = text.strip().lower()
     text = re.sub(r"['\"`]", "", text)
     ascii_text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
-    if ascii_text:
-        return ascii_text[:48].strip("-")
-
-    # Deterministic pinyin-like transliteration is not available in stdlib.
-    # For CJK PRDs, keep a readable generic prefix and add a stable hash below.
-    return "prd-design-task"
+    return (ascii_text[:48].strip("-")) if ascii_text else "prd-design-task"
 
 seed = provided_title.strip() or first_meaningful_line(prd_text)
 base = slugify(seed)
-
-import hashlib
 digest = hashlib.sha1(prd_text.encode("utf-8")).hexdigest()[:8]
-task_id = f"{base}-{digest}"
-task_id = re.sub(r"-+", "-", task_id).strip("-")
+task_id = re.sub(r"-+", "-", f"{base}-{digest}").strip("-")
 
-project_dir = pathlib.Path("projects") / task_id
-task_dir = project_dir / "current"
-state_file = task_dir / "task-state.json"
-if state_file.exists():
-    raise SystemExit(f"Task already exists: {state_file}")
+# ── 3. Create directory structure ─────────────────────────────────────────────
 
-task_dir.mkdir(parents=True, exist_ok=False)
+project_dir   = pathlib.Path("projects") / task_id
+current_dir   = project_dir / "current"
+stories_s1    = current_dir / "stories" / "s1"
+logs_dir      = project_dir / "logs"
+milestones_dir = project_dir / "milestones"
+
+if (current_dir / "task-state.json").exists():
+    raise SystemExit(f"Task already exists: {project_dir}")
+
+for d in [stories_s1, logs_dir, milestones_dir]:
+    d.mkdir(parents=True, exist_ok=True)
+
+# ── 4. Write prd.md ───────────────────────────────────────────────────────────
+
+if mode == "file":
+    suffix = pathlib.Path(source_reference).suffix or ".md"
+    prd_dest = current_dir / f"prd{suffix}"
+    shutil.copyfile(source_reference, prd_dest)
+    prd_ref = str(prd_dest)
+else:
+    prd_dest = current_dir / "prd.md"
+    prd_dest.write_text(prd_text.strip() + "\n", encoding="utf-8")
+    prd_ref = str(prd_dest)
+
+# ── 5. Write task-state.json ──────────────────────────────────────────────────
+
+MODE_TYPE = {"file": "file", "text": "text", "link": "lark_url"}
 
 template_path = pathlib.Path("harness/templates/task-state.json")
-state = json.loads(template_path.read_text(encoding="utf-8").replace("<task-id>", task_id))
-state["source_prd"]["type"] = mode
-state["source_prd"]["reference"] = source_reference
-state["source_prd"]["derived_title"] = seed
-if mode == "link":
-    state["source_prd"]["original_url"] = source_reference
+state = json.loads(template_path.read_text(encoding="utf-8"))
 
+state["task_id"]    = task_id
+state["created_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+state["prd_source"]["type"]  = MODE_TYPE[mode]
+state["prd_source"]["value"] = prd_ref
+
+if mode == "link":
+    state["prd_source"]["original_url"] = source_reference
+
+state_file = current_dir / "task-state.json"
 state_file.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-if mode in ("text", "link"):
-    (task_dir / "prd.md").write_text(prd_text.strip() + "\n", encoding="utf-8")
-    state["source_prd"]["reference"] = str(task_dir / "prd.md")
-    state_file.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-elif mode == "file":
-    suffix = pathlib.Path(source_reference).suffix or ".md"
-    copied_prd = task_dir / f"prd{suffix}"
-    shutil.copyfile(source_reference, copied_prd)
-    state["source_prd"]["reference"] = str(copied_prd)
-    state_file.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+# ── 6. Write session-log.md ───────────────────────────────────────────────────
 
-progress_template = pathlib.Path("harness/templates/progress.md").read_text(encoding="utf-8")
-progress = progress_template.replace("<task-id>", task_id).replace("<derived-title>", seed)
-(project_dir / "progress.md").write_text(progress, encoding="utf-8")
+(current_dir / "session-log.md").write_text(
+    f"# Session Log — {task_id}\n\n"
+    "| time | agent | status | duration | notes |\n"
+    "|---|---|---|---|---|\n",
+    encoding="utf-8",
+)
 
-handoff_template = pathlib.Path("harness/templates/session-handoff.md").read_text(encoding="utf-8")
-handoff = handoff_template.replace("<task-id>", task_id).replace("<derived-title>", seed)
-(project_dir / "session-handoff.md").write_text(handoff, encoding="utf-8")
+# ── 7. Write changelog.md ─────────────────────────────────────────────────────
 
-print(task_id)
-print(state_file)
+(current_dir / "changelog.md").write_text(
+    f"# Changelog — {task_id}\n\n"
+    "| adj-id | timestamp | story_id | path | description | cause_type |\n"
+    "|---|---|---|---|---|---|\n",
+    encoding="utf-8",
+)
+
+# ── 8. Print summary ──────────────────────────────────────────────────────────
+
+print(f"""
+✅  Task initialized: {task_id}
+
+    {project_dir}/
+    ├── current/
+    │   ├── prd.md
+    │   ├── task-state.json
+    │   ├── session-log.md
+    │   ├── changelog.md
+    │   └── stories/
+    │       └── s1/              ← prd-analyst may add more stories here
+    ├── logs/
+    └── milestones/
+
+Next step:
+    Run prd-analyst on this task.
+    It will read current/prd.md and write current/prd-analysis.json.
+
+TASK_ID={task_id}
+""")
 PY
