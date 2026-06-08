@@ -33,18 +33,34 @@ Show the user:
 - User says no / provides a different URL → go back to Step 2 with the new URL
 - lark-cli not found → show setup instructions from `docs/setup.md §1` and stop
 
+## Step 2.5 — Collect Figma file URL
+
+Ask the user in chat:
+
+> 🎨 **请提供 Figma 文件链接**（frames 将在该文件中创建）：
+> 例如：`https://www.figma.com/file/XXXXXXXX/Your-File-Name`
+>
+> 如暂时没有，直接回复"跳过"即可，稍后通过 `/setup` 设置。
+
+**Wait for the user's reply.**
+
+- User provides a URL → pass it via `--figma-url "<url>"` in Step 3
+- User says skip / no URL → omit `--figma-url` from Step 3 (the script will leave `figma.target_url` as null)
+
 ## Step 3 — Initialize the task
 
 ```bash
-# Lark URL (after confirmation)
-scripts/init-task-from-prd.sh --lark-url "<url>" --title "<short-english-title>" --yes
+# Lark URL (after confirmation + Figma URL collected)
+scripts/init-task-from-prd.sh --lark-url "<url>" --title "<short-english-title>" --yes --figma-url "<figma-url>"
 
 # Local file
-scripts/init-task-from-prd.sh --file "$ARGUMENTS" --title "<short-english-title>"
+scripts/init-task-from-prd.sh --file "$ARGUMENTS" --title "<short-english-title>" --figma-url "<figma-url>"
 
 # Pasted text
-scripts/init-task-from-prd.sh --text "<prd-text>" --title "<short-english-title>"
+scripts/init-task-from-prd.sh --text "<prd-text>" --title "<short-english-title>" --figma-url "<figma-url>"
 ```
+
+Omit `--figma-url` if the user skipped that step.
 
 If no title is available, derive a short kebab-case English title from the document title obtained in Step 2 (or the PRD's first meaningful line), and pass it via `--title`.
 

@@ -4,12 +4,13 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 Usage:
-  scripts/init-task-from-prd.sh --file <prd-file> [--title "short english title"]
-  scripts/init-task-from-prd.sh --text "<prd text>" [--title "short english title"]
-  scripts/init-task-from-prd.sh --lark-url <docx-or-wiki-url> [--title "short english title"]
+  scripts/init-task-from-prd.sh --file <prd-file> [--title "short english title"] [--figma-url <url>]
+  scripts/init-task-from-prd.sh --text "<prd text>" [--title "short english title"] [--figma-url <url>]
+  scripts/init-task-from-prd.sh --lark-url <docx-or-wiki-url> [--title "short english title"] [--figma-url <url>]
 
 Options:
-  --yes   Skip the Lark document title confirmation prompt (for non-interactive use)
+  --figma-url   Figma file URL where frames will be created (e.g. https://www.figma.com/file/XXX/Name)
+  --yes         Skip the Lark document title confirmation prompt (for non-interactive use)
 
 Creates projects/<auto-task-id>/ with the v4.1-MVP directory structure:
   current/
@@ -24,6 +25,7 @@ MODE=""
 VALUE=""
 TITLE=""
 YES=""
+FIGMA_URL=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -50,6 +52,10 @@ while [[ $# -gt 0 ]]; do
       YES="yes"
       shift
       ;;
+    --figma-url)
+      FIGMA_URL="${2:-}"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -67,7 +73,7 @@ if [[ -z "$MODE" || -z "$VALUE" ]]; then
   exit 1
 fi
 
-python3 - "$MODE" "$VALUE" "$TITLE" "$YES" <<'PY'
+python3 - "$MODE" "$VALUE" "$TITLE" "$YES" "$FIGMA_URL" <<'PY'
 import json
 import pathlib
 import re
@@ -77,7 +83,9 @@ import sys
 import hashlib
 from datetime import datetime, timezone
 
-mode, value, provided_title, skip_confirm = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+mode, value, provided_title, skip_confirm, figma_url = (
+    sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
+)
 LARK_CLI_SETUP_URL = "https://bytedance.larkoffice.com/docx/PxZadXlz2o4mCmxjAvfc30H3nQg"
 
 
@@ -111,6 +119,27 @@ def ask_confirm_tty(prompt: str) -> bool:
         sys.stdout.write(f"{prompt}[auto-confirmed: no TTY]\n")
         sys.stdout.flush()
         return True
+
+
+def ask_figma_url_tty(provided: str) -> str:
+    """Prompt for Figma file URL via TTY. Returns the URL string (may be empty)."""
+    if provided:
+        return provided
+    try:
+        with open("/dev/tty", "r") as tty:
+            sys.stdout.write(
+                "\n🎨 Figma 文件链接（frames 将在此文件中创建，留空可稍后通过 /setup 设置）: "
+            )
+            sys.stdout.flush()
+            return tty.readline().strip()
+    except OSError:
+        # No TTY — skip silently
+        return ""
+
+
+def validate_figma_url(url: str) -> bool:
+    return "figma.com" in url
+
 
 # ── 1. Fetch PRD content ──────────────────────────────────────────────────────
 
@@ -179,6 +208,26 @@ elif mode == "link":
 else:
     raise SystemExit(f"Unsupported mode: {mode}")
 
+# ── 1b. Collect Figma URL ─────────────────────────────────────────────────────
+
+collected_figma_url = ask_figma_url_tty(figma_url)
+
+# Validate if provided; one retry on bad format
+if collected_figma_url and not validate_figma_url(collected_figma_url):
+    try:
+        with open("/dev/tty", "r") as tty:
+            sys.stdout.write(
+                "⚠️  链接格式不对（需包含 figma.com），请重新输入（留空跳过）: "
+            )
+            sys.stdout.flush()
+            collected_figma_url = tty.readline().strip()
+    except OSError:
+        collected_figma_url = ""
+
+    if collected_figma_url and not validate_figma_url(collected_figma_url):
+        print("⚠️  Figma 链接无效，已跳过。请在任务初始化后通过 /setup 命令设置。")
+        collected_figma_url = ""
+
 # ── 2. Derive task_id ─────────────────────────────────────────────────────────
 
 def first_meaningful_line(text: str) -> str:
@@ -244,6 +293,9 @@ state["prd_source"]["value"] = prd_ref
 if mode == "link":
     state["prd_source"]["original_url"] = source_reference
 
+if collected_figma_url:
+    state["figma"]["target_url"] = collected_figma_url
+
 state_file = current_dir / "task-state.json"
 state_file.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -267,6 +319,12 @@ state_file.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", en
 
 # ── 8. Print summary ──────────────────────────────────────────────────────────
 
+figma_line = (
+    f"    figma.target_url  = {collected_figma_url}"
+    if collected_figma_url
+    else "    figma.target_url  = (not set — run /setup to configure)"
+)
+
 print(f"""
 ✅  Task initialized: {task_id}
 
@@ -280,6 +338,8 @@ print(f"""
     │       └── s1/              ← prd-analyst may add more stories here
     ├── logs/
     └── milestones/
+
+{figma_line}
 
 Next step:
     Run prd-analyst on this task.
