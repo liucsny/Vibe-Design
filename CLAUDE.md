@@ -2,6 +2,17 @@
 
 AI agent workflow that turns PM PRDs into reviewable Vine UI design artifacts in Figma.
 
+## Prerequisites
+
+Two external tools are needed for the full pipeline:
+
+| Tool | Needed for | Setup |
+|---|---|---|
+| **lark-cli** | Fetching PRDs from Feishu/Lark URLs | `docs/setup.md §1` |
+| **Figma MCP** | Generating Figma frames (`figma-generator`, `design-map-builder`) | `docs/setup.md §2` |
+
+If a stage blocks due to a missing tool, the agent will print exact setup steps. Run `/setup` at any time to check tool status.
+
 ## Every Session — Read First
 
 1. Read `SOUL.md` — your identity, behavior principles, and safety red lines.

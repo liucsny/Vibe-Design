@@ -17,10 +17,66 @@ description: Build all Figma frames for a story via Figma MCP, following the UI 
 - `logs/04-figma-generation-<story-id>.md`
 
 ## Preflight
-1. Confirm story's `delivery_spec = passing`.
-2. Confirm `figma.target_url` is set in task-state.json. If not: set stage to `blocked`, request the URL.
-3. Verify Figma MCP is reachable (run a read call). If not: set stage to `blocked`, report the issue.
-4. If DS adapter is configured (`figma.library_adapter` is set): verify the library is subscribed in the target Figma file. If not: set stage to `blocked`, instruct user to add the library.
+
+Run all checks before generating any frames. On any failure: set the stage to `blocked` in `task-state.json`, populate `blocked_input_request` with the message below, and stop.
+
+### Check 1 — Delivery spec ready
+Confirm story's `delivery_spec = passing`. If not: stop and tell the user to run `delivery-spec-writer` first.
+
+### Check 2 — Figma MCP available
+Attempt a minimal Figma MCP call (e.g., read the file metadata at `figma.target_url`, or list available MCP tools).
+
+**If Figma MCP is not reachable**, set `blocked_input_request` to:
+
+```
+Figma MCP is not configured or not running.
+
+To fix:
+1. Get a Personal Access Token: Figma → Settings → Security → Personal access tokens
+2. Add to your MCP config (~/.claude/claude_desktop_config.json or project .mcp.json):
+   {
+     "mcpServers": {
+       "figma": {
+         "command": "npx",
+         "args": ["-y", "@figma/mcp-server"],
+         "env": { "FIGMA_API_TOKEN": "your-token-here" }
+       }
+     }
+   }
+3. Restart Claude Code.
+4. Re-run /figma-generator once Figma MCP is active.
+
+Full guide: docs/setup.md §2
+```
+
+### Check 3 — Figma target URL set
+Confirm `figma.target_url` is set in `task-state.json`.
+
+**If null**, set `blocked_input_request` to:
+
+```
+No Figma file URL is configured for this task.
+
+Please provide the URL of the Figma file where frames should be created.
+Example: https://www.figma.com/file/XXXXXXXX/Your-File-Name
+
+I will update task-state.json and continue automatically.
+```
+
+### Check 4 — Figma library subscribed (when DS adapter configured)
+If `figma.library_adapter` is set: verify the library is subscribed in the target Figma file.
+
+**If not subscribed**, set `blocked_input_request` to:
+
+```
+The design system library is not subscribed in your Figma file.
+
+To fix:
+1. Open your Figma file
+2. Go to Assets panel (left sidebar) → Libraries icon
+3. Find "<library-name>" and click "Add to file"
+4. Re-run /figma-generator.
+```
 
 ## Steps
 
