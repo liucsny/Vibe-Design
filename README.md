@@ -6,29 +6,77 @@ Vibe Design turns a PM PRD into reviewable Vine UI drafts in Figma, then support
 
 ### Phase A — Foundation Build
 
-```text
-PRD
-  → prd-analyst         prd-analysis.json
-  → context-scout       design-brief.md
-  ↓ (per story, in dependency order)
-  → delivery-spec-writer    stories/<id>/ui-delivery-spec.md
-  → figma-generator         stories/<id>/final-ui-reference.md  +  Figma frames
-  → qa-reviewer             stories/<id>/scenario-quality-check.md
-  → design-map-builder      stories/<id>/design-map.json
-  ↓
-  Cross-Story Consistency Check (multi-story PRDs)
-  → milestones/v0/ snapshot
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  INPUT                                                              │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │  PRD  (file / pasted text / Lark URL)                       │   │
+│  └────────────────────────┬────────────────────────────────────┘   │
+│                           │                                         │
+│            ╔══════════════▼══════════════╗                          │
+│            ║       prd-analyst           ║  → prd-analysis.json    │
+│            ╚══════════════╤══════════════╝                          │
+│                           │                                         │
+│            ╔══════════════▼══════════════╗                          │
+│            ║       context-scout         ║  → design-brief.md      │
+│            ╚══════════════╤══════════════╝                          │
+│                           │                                         │
+│              ┌────────────▼─────────────┐                           │
+│              │  per story (s1 → s2 …)   │  respects depends_on     │
+│              │                          │                           │
+│              │  ╔══════════════════╗    │                           │
+│              │  ║ delivery-spec-   ║    │  → ui-delivery-spec.md   │
+│              │  ║ writer           ║    │                           │
+│              │  ╚════════╤═════════╝    │                           │
+│              │           │              │                           │
+│              │  ╔════════▼═════════╗    │                           │
+│              │  ║ figma-generator  ║    │  → final-ui-reference.md │
+│              │  ╚════════╤═════════╝    │    + Figma frames         │
+│              │           │              │                           │
+│              │  ╔════════▼═════════╗    │                           │
+│              │  ║  qa-reviewer     ║    │  → scenario-quality-     │
+│              │  ╚════════╤═════════╝    │    check.md              │
+│              │           │  p0=0 p1=0   │                           │
+│              │  ╔════════▼═════════╗    │                           │
+│              │  ║ design-map-      ║    │  → design-map.json       │
+│              │  ║ builder          ║    │                           │
+│              │  ╚══════════════════╝    │                           │
+│              └──────────────────────────┘                           │
+│                           │                                         │
+│              (multi-story) Cross-Story Consistency Check            │
+│                           │                                         │
+│                    milestones/v0/                                   │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Phase B — Adjustment Loop
 
-```text
-PM Feedback
-  → Triage: SMALL / MEDIUM / LARGE
-       HOT FIX    → Figma edit via Design Map → changelog
-       SURFACE    → re-run delivery-spec + figma + QA for affected surfaces
-       ESCALATE   → re-enter Phase A from appropriate stage
-  → PM Review → milestones/vN/ snapshot
+```
+  PM Feedback
+       │
+       ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  TRIAGE                                                         │
+  │                                                                 │
+  │  SMALL ──────► HOT FIX                                         │
+  │  copy, color,   validate Design Map node IDs                   │
+  │  spacing        → edit Figma directly                          │
+  │                 → update changelog                             │
+  │                                                                 │
+  │  MEDIUM ─────► SURFACE                                         │
+  │  missing state  re-run delivery-spec + figma-generator + QA   │
+  │  layout change  for affected surfaces only                     │
+  │                                                                 │
+  │  LARGE ──────► ESCALATE → re-enter Phase A                    │
+  │  new page,      from appropriate stage                         │
+  │  new flow                                                      │
+  │                                                                 │
+  │  NEW SCOPE ──► STOP  ask PM to update PRD first               │
+  └───────────────────────────┬─────────────────────────────────────┘
+                              │
+                         PM Review
+                              │
+                      milestones/vN/
 ```
 
 ## Repository Layout
