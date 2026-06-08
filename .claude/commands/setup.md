@@ -12,7 +12,7 @@ lark-cli --version
   > lark-cli is not installed. You need it to fetch PRDs from Feishu/Lark URLs.
   > Install: `npm install -g @larksuiteoapi/lark-cli`
   > Then authenticate: `lark-cli config init --new`
-  > Full guide: `docs/setup.md §1`
+  > Full guide: `rules/setup.md §1`
 
 Then check auth:
 ```bash
@@ -26,7 +26,7 @@ Attempt a minimal Figma MCP tool call (e.g., list available tools or ping the AP
 - ✅ Responds → Figma MCP is active
 - ❌ Tool not found or error → tell the user:
   > Figma MCP is not configured. You need it to generate Figma frames.
-  > Setup steps: `docs/setup.md §2`
+  > Setup steps: `rules/setup.md §2`
   > Quick summary:
   > 1. Get a Personal Access Token from Figma Settings → Security
   > 2. Add to your MCP config: `~/.claude/claude_desktop_config.json`
@@ -52,4 +52,4 @@ Figma MCP    ✅ ready   API reachable
 Figma URL    ✅ set     https://figma.com/file/...
 ```
 
-or show exactly what needs to be fixed, with the relevant section of `docs/setup.md`.
+or show exactly what needs to be fixed, with the relevant section of `rules/setup.md`.

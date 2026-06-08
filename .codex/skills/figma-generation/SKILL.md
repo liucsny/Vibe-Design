@@ -46,7 +46,7 @@ To fix:
 3. Restart Claude Code.
 4. Re-run /figma-generator once Figma MCP is active.
 
-Full guide: docs/setup.md §2
+Full guide: rules/setup.md §2
 ```
 
 ### Check 3 — Figma target URL set

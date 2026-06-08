@@ -8,8 +8,8 @@ Two external tools are needed for the full pipeline:
 
 | Tool | Needed for | Setup |
 |---|---|---|
-| **lark-cli** | Fetching PRDs from Feishu/Lark URLs | `docs/setup.md §1` |
-| **Figma MCP** | Generating Figma frames (`figma-generator`, `design-map-builder`) | `docs/setup.md §2` |
+| **lark-cli** | Fetching PRDs from Feishu/Lark URLs | `rules/setup.md §1` |
+| **Figma MCP** | Generating Figma frames (`figma-generator`, `design-map-builder`) | `rules/setup.md §2` |
 
 Run `/setup` at any time to check tool status.
 
@@ -18,7 +18,7 @@ Run `/setup` at any time to check tool status.
 1. Read `SOUL.md` — your identity, behavior principles, and safety red lines.
 2. If a task is active: read `projects/<task-id>/current/task-state.json` to know where you left off.
 
-Full workflow routing: `AGENTS.md` · Complete rule set: `docs/workflow-contract.md`
+Full workflow routing: `AGENTS.md` · Complete rule set: `rules/workflow-contract.md`
 
 ---
 
@@ -79,7 +79,7 @@ If you need to re-run a specific stage or resume after a block, invoke the subag
 ```
 SOUL.md                            agent identity + safety
 AGENTS.md                          workflow routing
-docs/workflow-contract.md          authoritative rules
+rules/workflow-contract.md          authoritative rules
 .claude/agents/*.md                subagent definitions (isolated context)
 .claude/commands/*.md              slash command orchestrators
 .codex/skills/<stage>/SKILL.md     per-stage detailed instructions

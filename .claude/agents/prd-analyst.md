@@ -25,7 +25,7 @@ Key rules (do not skip):
 - For `multi_story`: identify each story (id, name, prd_sections, depends_on).
 - Write `current/prd-analysis.json`.
 - Update `task-state.json`: set `shared.prd_analysis` to `passing` (or `blocked`), populate `stories[]`, update `timeline`.
-- Write `logs/01-prd-analysis.md` using the standard log format from `docs/workflow-contract.md §11`.
+- Write `logs/01-prd-analysis.md` using the standard log format from `rules/workflow-contract.md §11`.
 
 ## Output
 

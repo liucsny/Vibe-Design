@@ -11,7 +11,7 @@ Two external tools are required for the full pipeline:
 | **lark-cli** | `--lark-url` PRD intake | `lark-cli --version` |
 | **Figma MCP** | `figma-generator`, `design-map-builder` | Attempt a Figma MCP read call |
 
-**If a tool is missing:** set the stage to `blocked`, populate `blocked_input_request` with step-by-step setup instructions (see each skill's Preflight section), and stop. Do not skip or work around a missing tool. Full setup guide: `docs/setup.md`.
+**If a tool is missing:** set the stage to `blocked`, populate `blocked_input_request` with step-by-step setup instructions (see each skill's Preflight section), and stop. Do not skip or work around a missing tool. Full setup guide: `rules/setup.md`.
 
 ## Quick Start — New Task from PRD
 
