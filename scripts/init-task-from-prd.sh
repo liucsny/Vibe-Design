@@ -8,6 +8,9 @@ Usage:
   scripts/init-task-from-prd.sh --text "<prd text>" [--title "short english title"]
   scripts/init-task-from-prd.sh --lark-url <docx-or-wiki-url> [--title "short english title"]
 
+Options:
+  --yes   Skip the Lark document title confirmation prompt (for non-interactive use)
+
 Creates projects/<auto-task-id>/ with the v4.1-MVP directory structure:
   current/
     prd.md, task-state.json, session-log.md, changelog.md
@@ -20,6 +23,7 @@ USAGE
 MODE=""
 VALUE=""
 TITLE=""
+YES=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -42,6 +46,10 @@ while [[ $# -gt 0 ]]; do
       TITLE="${2:-}"
       shift 2
       ;;
+    --yes|-y)
+      YES="yes"
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -59,7 +67,7 @@ if [[ -z "$MODE" || -z "$VALUE" ]]; then
   exit 1
 fi
 
-python3 - "$MODE" "$VALUE" "$TITLE" <<'PY'
+python3 - "$MODE" "$VALUE" "$TITLE" "$YES" <<'PY'
 import json
 import pathlib
 import re
@@ -69,8 +77,40 @@ import sys
 import hashlib
 from datetime import datetime, timezone
 
-mode, value, provided_title = sys.argv[1], sys.argv[2], sys.argv[3]
+mode, value, provided_title, skip_confirm = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 LARK_CLI_SETUP_URL = "https://bytedance.larkoffice.com/docx/PxZadXlz2o4mCmxjAvfc30H3nQg"
+
+
+def extract_doc_title(text: str) -> str:
+    """Extract the first meaningful heading or line from document text."""
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        # Strip markdown headings and XML title tags
+        line = re.sub(r"^#{1,6}\s*", "", line)
+        line = re.sub(r"^<title>(.*)</title>$", r"\1", line)
+        line = re.sub(r"^(PRD|需求|标题|Title)\s*[:：]\s*", "", line, flags=re.I)
+        line = line.strip()
+        if line:
+            return line[:120]
+    return ""
+
+
+def ask_confirm_tty(prompt: str) -> bool:
+    """Read Y/n from the terminal directly, bypassing heredoc stdin.
+    Returns True if user confirms (or if no TTY is available)."""
+    try:
+        with open("/dev/tty", "r") as tty:
+            sys.stdout.write(prompt)
+            sys.stdout.flush()
+            answer = tty.readline().strip().lower()
+        return answer in ("", "y", "yes")
+    except OSError:
+        # No TTY (piped / CI) — auto-confirm and note it
+        sys.stdout.write(f"{prompt}[auto-confirmed: no TTY]\n")
+        sys.stdout.flush()
+        return True
 
 # ── 1. Fetch PRD content ──────────────────────────────────────────────────────
 
@@ -123,6 +163,18 @@ elif mode == "link":
     if not prd_text.strip():
         raise SystemExit("Fetched Lark document is empty.")
     source_reference = value
+
+    # ── Title confirmation ────────────────────────────────────────────────────
+    doc_title = extract_doc_title(prd_text)
+    print(f"\n📄 飞书文档标题：「{doc_title}」")
+    print(f"   {value}")
+
+    if skip_confirm != "yes":
+        confirmed = ask_confirm_tty("\n确认使用该文档初始化任务？(Y/n) ")
+        if not confirmed:
+            print("\n已取消。如需使用其他文档，请重新运行并提供正确的链接。")
+            sys.exit(0)
+    print()
 
 else:
     raise SystemExit(f"Unsupported mode: {mode}")
