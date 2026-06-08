@@ -1,4 +1,0 @@
-interface:
-  display_name: "Baseline Reference"
-  short_description: "Summarize an existing UI baseline from Figma or screenshot"
-  default_prompt: "Use $baseline-reference to summarize the current UI baseline before PRD-to-UI artifact work."

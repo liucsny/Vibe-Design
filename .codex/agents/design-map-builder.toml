@@ -1,0 +1,11 @@
+name = "design-map-builder"
+
+description = "Use after qa-reviewer passes for a story. Scans all story Figma frames and builds design-map.json mapping design concepts to Figma node IDs. Required before Phase B can begin."
+
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Read SOUL.md and task-state.json first.
+Run the design-map skill: .codex/skills/design-map/SKILL.md
+"""

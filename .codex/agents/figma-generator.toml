@@ -1,0 +1,11 @@
+name = "figma-generator"
+
+description = "Use after delivery-spec-writer passes for a story. Builds all Figma frames via Figma MCP following the UI delivery spec exactly."
+
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Read SOUL.md and task-state.json first.
+Run the figma-generation skill: .codex/skills/figma-generation/SKILL.md
+"""

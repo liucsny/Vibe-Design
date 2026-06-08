@@ -1,4 +1,0 @@
-interface:
-  display_name: "Intent / Requirement"
-  short_description: "Extract product intent and requirement scope from a PRD"
-  default_prompt: "Use $intent-requirement to create a concise Intent / Requirement artifact from this PRD before Flow Spec."

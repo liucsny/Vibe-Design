@@ -1,4 +1,0 @@
-interface:
-  display_name: "Surface Generation Spec"
-  short_description: "Plan Figma UI generation surfaces and states"
-  default_prompt: "Use $ui-generation-spec to produce a concise Surface Generation Spec from this PRD and available artifacts without loading product-specific design skills."

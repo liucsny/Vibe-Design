@@ -1,0 +1,11 @@
+name = "prd-analyst"
+
+description = "Use when starting a new task. Reads the PRD, detects single vs multi-story scope, scores quality, and outputs prd-analysis.json."
+
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Read SOUL.md and task-state.json first.
+Run the prd-analysis skill: .codex/skills/prd-analysis/SKILL.md
+"""

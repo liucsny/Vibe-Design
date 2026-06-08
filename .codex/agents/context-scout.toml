@@ -1,0 +1,11 @@
+name = "context-scout"
+
+description = "Use after prd-analyst passes. Gathers design system constraints, UX patterns, and a11y requirements, then synthesizes design-brief.md."
+
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Read SOUL.md and task-state.json first.
+Run the context-scout skill: .codex/skills/context-scout/SKILL.md
+"""
