@@ -19,8 +19,34 @@ description: Validate Figma output against the delivery spec and PRD. Classify a
 
 ## Preflight
 1. Confirm story's `figma_generation = passing`.
-2. Capture screenshots of all frames listed in `final-ui-reference.md` via Figma MCP.
-3. Do not proceed from screenshots alone. Also inspect node tree for structure and component evidence.
+2. Read `final-ui-reference.md` to get all frame IDs.
+3. **Use a metadata-first, screenshot-on-demand strategy** (see Inspection Protocol below).
+
+## Inspection Protocol — Metadata First, Screenshot on Demand
+
+**Do NOT screenshot all frames upfront.** Screenshots are expensive. Use the following two-phase approach:
+
+### Phase 1 — Structural scan (metadata only)
+For each frame in `final-ui-reference.md`, call `get_metadata` to retrieve the node tree.
+From metadata alone, check:
+- Frame exists and is inside the correct Section
+- Expected child count and layer hierarchy (e.g., modal has header / body / footer)
+- Text node widths vs. container widths (overflow detection without screenshot)
+- Auto Layout is set on primary containers
+- Semantic layer names (not "Frame 1", "Group 2")
+- Required child nodes are present (e.g., button labels, field labels, error text nodes)
+
+Flag any frame that has a **structural anomaly** (unexpected node count, text wider than container, missing required child, flat non-AutoLayout hierarchy).
+
+### Phase 2 — Targeted screenshot (flagged frames only)
+Only call `get_screenshot` on frames flagged in Phase 1, plus:
+- One representative frame per surface (to verify visual rendering)
+- Any frame where the spec describes a visual-only requirement (colors, diff highlights, skeleton animation)
+
+**Goal: screenshot at most 30–40% of frames**, not all of them.
+
+### Efficiency rule
+If a surface has 5 states and Phase 1 finds no structural anomaly in any of them, take 1 screenshot of the Default state only. Do not screenshot Loading, Error, and other states unless metadata raises a flag.
 
 ## Checks
 
@@ -102,7 +128,7 @@ Write `scenario-quality-check.md`:
 
 ### [P0/P1/P2] <Issue title>
 - Surface: <surface name>
-- State: <state name>
+- State: <state name> — **also check sibling states:** <list other states of this surface>
 - Evidence: <screenshot ref or node ID>
 - Description: <what is wrong>
 - cause_type: <from list above>

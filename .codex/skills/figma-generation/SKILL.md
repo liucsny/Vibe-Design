@@ -32,19 +32,9 @@ Attempt a minimal Figma MCP call (e.g., read the file metadata at `figma.target_
 Figma MCP is not configured or not running.
 
 To fix:
-1. Get a Personal Access Token: Figma → Settings → Security → Personal access tokens
-2. Add to your MCP config (~/.claude/claude_desktop_config.json or project .mcp.json):
-   {
-     "mcpServers": {
-       "figma": {
-         "command": "npx",
-         "args": ["-y", "@figma/mcp-server"],
-         "env": { "FIGMA_API_TOKEN": "your-token-here" }
-       }
-     }
-   }
-3. Restart Claude Code.
-4. Re-run /figma-generator once Figma MCP is active.
+1. Run: claude plugin install figma@claude-plugins-official
+2. Restart Claude Code.
+3. Type /plugin → Installed → select figma → authorize in browser.
 
 Full guide: rules/setup.md §2
 ```
@@ -154,3 +144,31 @@ Target file: <figma-target-url>
 
 ### 7. Write Execution Log
 Write `logs/04-figma-generation-<story-id>.md` using the standard log format. Include: how many frames generated, frame arrangement rationale from Navigation Map, any blocked components, any spec deviations.
+
+---
+
+## QA Rework Rules
+
+When re-running to fix QA issues, follow these rules to avoid repeated rework cycles:
+
+### Rule 1 — Sibling State Propagation (mandatory)
+For every issue fixed on a node, immediately scan **all other states of the same surface** for the identical defect pattern before marking the fix complete.
+
+Example: if node X in the "Default" state has a text overflow, check every other state frame (Loading, Error, Validation Error, etc.) of that same surface for text overflow in the same relative position. Fix all occurrences in a single pass.
+
+Never close a fix until you have verified no sibling state has the same defect.
+
+### Rule 2 — Fix Verification Before Moving On
+After fixing each issue, call `get_metadata` on the affected node to confirm the structural change took effect (e.g., width reduced, textAutoResize set). Do not rely on the script returning no error — explicitly check the node's properties.
+
+### Rule 3 — Minimal Scope, Maximum Coverage
+- Only touch nodes explicitly named in QA issues or identified as siblings by Rule 1.
+- Do not regenerate entire frames or sections to fix a single node property.
+- One `use_figma` call should handle all sibling fixes for a given issue type (e.g., fix all text overflow instances in one script).
+
+### Rule 4 — Rework Summary
+After all fixes, return a structured summary:
+```
+Fixed: [issue ID] — [node IDs touched] — [what changed]
+Sibling check: [surface name] — [states checked] — [additional nodes fixed / none found]
+```
