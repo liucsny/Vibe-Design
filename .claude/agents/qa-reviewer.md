@@ -23,9 +23,9 @@ Follow `.codex/skills/qa-review/SKILL.md` exactly.
 
 Key rules:
 - Check screenshots AND node tree. Do not pass from metadata alone.
-- Every P0 and P1 must have a `cause_type` from the approved list (see workflow-contract.md §8).
-- P0/P1 present → set story's `qa_review` to `not_started`, set owning stage to `not_started`.
-- p0 = 0 AND p1 = 0 → set `qa_review` to `passing`.
+- Every P0 must have a `cause_type` from the approved list (see workflow-contract.md §8). P1/P2 should include cause_type where known.
+- P0 present → set story's `qa_review` to `not_started`, set `figma_generation` to `not_started` for rework.
+- p0 = 0 → set `qa_review` to `passing` (p1/p2 are recorded but do NOT block passing).
 - Update `task-state.json` with `quality_gate` counts and new statuses.
 - Write `logs/05-qa-review-<story-id>.md`.
 

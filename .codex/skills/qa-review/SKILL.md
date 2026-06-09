@@ -1,6 +1,6 @@
 ---
 name: qa-review
-description: Validate Figma output against the delivery spec and PRD. Classify all issues with severity and cause_type. Gate delivery — p0+p1 must be zero to pass.
+description: Validate Figma output against the delivery spec and PRD. Classify all issues with severity and cause_type. Gate delivery — only p0 must be zero to pass; p1/p2 are recorded but non-blocking.
 ---
 
 # QA Review
@@ -21,13 +21,38 @@ description: Validate Figma output against the delivery spec and PRD. Classify a
 1. Confirm story's `figma_generation = passing`.
 2. Read `final-ui-reference.md` to get all frame IDs.
 3. **Use a metadata-first, screenshot-on-demand strategy** (see Inspection Protocol below).
+4. **Large tool-result guard**: If a Figma MCP call returns a cached file that exceeds 25K tokens when read, use `offset` + `limit` parameters on the Read tool to extract only the section you need (e.g., search for a specific `node_id` substring first with Bash grep, then read around that offset).
+
+## Figma MCP Precision Rules
+
+### `whoami`
+- Use only for connectivity check. One call per session, at Preflight.
+
+### `get_metadata`
+- Always pass `node_id` (the Frame ID from `final-ui-reference.md`). Never call on the file URL.
+- One call per frame row — no more.
+
+### `get_design_context`
+- Always pass `node_id`. Never call without it.
+- Use only when `get_metadata` reveals an anomaly that requires style/bounding-box details to diagnose (e.g., suspecting a fill color mismatch). Do not use as a substitute for `get_metadata` in the structural scan.
+- Maximum 1 call per flagged frame — not for every frame.
+
+### `get_screenshot`
+- Hard cap: **maximum 15 screenshots per QA session** (across all frames in the story).
+- Follow the Phase 2 targeting rules below. If Phase 1 finds no anomalies, stop at 1 screenshot per surface regardless of state count.
+
+---
 
 ## Inspection Protocol — Metadata First, Screenshot on Demand
 
 **Do NOT screenshot all frames upfront.** Screenshots are expensive. Use the following two-phase approach:
 
 ### Phase 1 — Structural scan (metadata only)
-For each frame in `final-ui-reference.md`, call `get_metadata` to retrieve the node tree.
+For each frame in `final-ui-reference.md`, call `get_metadata` with the specific frame's `node_id` to retrieve that frame's node tree.
+
+**Where to get `node_id`**: The "Frame ID" column in `final-ui-reference.md` is the `node_id`. Use that value directly as the `node_id` parameter — one `get_metadata` call per row.
+
+**Critical: Always pass `node_id`.** Never call `get_metadata` on the file URL alone — it returns the entire file tree and will exceed the 25K-token read limit on any non-trivial Figma file.
 From metadata alone, check:
 - Frame exists and is inside the correct Section
 - Expected child count and layer hierarchy (e.g., modal has header / body / footer)
@@ -80,18 +105,18 @@ Run all checks. Record every failing item as an Issue.
 
 ## Severity Classification
 
-**P0 (delivery blocker):**
+**P0 (hard blocker — triggers immediate rework):**
 - Required surface or state is missing
 - Core user flow is broken or impossible to follow
 - Layout is unreadable or non-functional
 
-**P1 (delivery blocker):**
+**P1 (recorded, non-blocking for Phase A):**
 - Misleading semantics (wrong component type used, e.g., checkbox for single-select)
 - Required copy is missing or materially wrong
 - Design system rule violated (library component redrawn with primitives)
 - Structural maintainability failure (flat primitives only, no Auto Layout)
 
-**P2 (non-blocking):**
+**P2 (recorded, non-blocking):**
 - Spacing inconsistency
 - Copy polish
 - Layer naming
@@ -99,7 +124,7 @@ Run all checks. Record every failing item as an Issue.
 
 ## cause_type Attribution
 
-Every P0 and P1 must have exactly one cause_type:
+Every P0 must have exactly one cause_type. P1 and P2 should also include cause_type where known:
 
 | cause_type | When to use |
 |---|---|
@@ -144,8 +169,8 @@ Write `scenario-quality-check.md`:
 
 ## Update task-state.json
 - Set `stories[].quality_gate.p0`, `.p1`, `.p2` counts.
-- If p0 > 0 or p1 > 0: set `stories[].stages.qa_review` to `not_started`. Set the owning stage for the highest-severity issue to `not_started`.
-- If p0 = 0 and p1 = 0: set `stories[].stages.qa_review` to `passing`.
+- If p0 > 0: set `stories[].stages.qa_review` to `not_started`. Set `figma_generation` to `not_started` for rework. P1/P2 do **not** trigger rework.
+- If p0 = 0: set `stories[].stages.qa_review` to `passing` (regardless of p1/p2 count).
 - Append timeline entry.
 
 ## Write Execution Log

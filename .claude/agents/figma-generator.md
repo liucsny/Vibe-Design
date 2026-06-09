@@ -22,7 +22,7 @@ Follow `.codex/skills/figma-generation/SKILL.md` exactly, including all Prefligh
 
 Preflight (block if any fail):
 1. `stories[story-id].stages.delivery_spec = "passing"` — if not, stop.
-2. Figma MCP is reachable — attempt a minimal read call.
+2. Figma MCP is reachable — call `whoami` (do NOT use `get_metadata` on the file URL).
 3. `figma.target_url` is set in task-state.json — if null, set stage to `blocked`, populate `blocked_input_request` with exact setup instructions, stop.
 4. If `figma.library_adapter` is set, verify library subscription in target file.
 

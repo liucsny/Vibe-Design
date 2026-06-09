@@ -24,7 +24,7 @@ Run all checks before generating any frames. On any failure: set the stage to `b
 Confirm story's `delivery_spec = passing`. If not: stop and tell the user to run `delivery-spec-writer` first.
 
 ### Check 2 — Figma MCP available
-Attempt a minimal Figma MCP call (e.g., read the file metadata at `figma.target_url`, or list available MCP tools).
+Call `whoami` to verify Figma MCP is reachable. Do NOT call `get_metadata` on the file URL here — it returns the entire file tree and can exceed token limits on large files.
 
 **If Figma MCP is not reachable**, set `blocked_input_request` to:
 
@@ -67,6 +67,45 @@ To fix:
 3. Find "<library-name>" and click "Add to file"
 4. Re-run /figma-generator.
 ```
+
+## Figma MCP Precision Rules
+
+These rules apply for the entire session. Violating them causes context bloat and token overruns.
+
+### `whoami`
+- Use only for connectivity checks. One call per session, at Preflight.
+
+### `get_metadata`
+- Always pass `node_id`. Never call without it.
+- Use only for post-fix verification (Rework Rule 2). Do not call during generation — you already know the structure because you wrote it.
+- One call per fixed node, not per frame or per session.
+
+### `get_design_context`
+- Always pass `node_id`. Never call on the file URL or without scoping.
+- Use only when you need layout/style reference for a **specific complex component** you are about to build and whose structure is unclear from the spec alone.
+- Maximum 1 call per frame. Do not call for every frame — only frames with genuinely ambiguous layout.
+
+### `get_variable_defs`
+- Call at most **once per session**, before generation starts (not mid-loop).
+- Only call when `figma.library_adapter` is set in task-state.json. If no DS adapter, skip entirely.
+- Store the result in memory for the session; do not re-call.
+
+### `get_libraries`
+- Call at most **once per session**, during Preflight Check 4 (library subscription verification).
+- Only call when `figma.library_adapter` is set. If no DS adapter, skip entirely.
+
+### `search_design_system`
+- Batch all component lookups: identify every component family you need before generation starts, then run one search per family — not one search per component instance.
+- Do not call inside the per-frame generation loop.
+
+### `get_screenshot`
+- Rework sessions only. Do not call during initial generation.
+- Hard cap: **maximum 5 screenshots per rework session**, applied only to the specific frames being fixed.
+
+### `use_figma`
+- Batch all mutations for a given issue into one script. Do not issue one `use_figma` call per node.
+
+---
 
 ## Steps
 
@@ -159,7 +198,11 @@ Example: if node X in the "Default" state has a text overflow, check every other
 Never close a fix until you have verified no sibling state has the same defect.
 
 ### Rule 2 — Fix Verification Before Moving On
-After fixing each issue, call `get_metadata` on the affected node to confirm the structural change took effect (e.g., width reduced, textAutoResize set). Do not rely on the script returning no error — explicitly check the node's properties.
+After fixing each issue, call `get_metadata` with the specific `node_id` of the affected node to confirm the structural change took effect (e.g., width reduced, textAutoResize set).
+
+**Where to get `node_id`**: The QA issue lists the node IDs touched (from `scenario-quality-check.md` "Evidence" field, or from the `use_figma` script you just ran). Use those IDs — do not look up the file URL.
+
+Always pass `node_id` — never call `get_metadata` without it. Do not rely on the script returning no error — explicitly check the node's properties.
 
 ### Rule 3 — Minimal Scope, Maximum Coverage
 - Only touch nodes explicitly named in QA issues or identified as siblings by Rule 1.
