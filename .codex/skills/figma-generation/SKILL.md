@@ -114,6 +114,18 @@ Create a named Section in the target Figma file: `<story-name> — <task-id>`.
 Set Section background to `#E5E5E5`.
 Record the Section node ID in task-state.json `stories[].figma_section_id`.
 
+**Placement — never overlap existing content:**
+Before placing the section, scan all top-level nodes on the current page to find the bottom edge of the lowest node:
+```js
+const nodes = figma.currentPage.children;
+const maxBottom = nodes.length > 0
+  ? Math.max(...nodes.map(n => n.y + n.height))
+  : 0;
+section.y = maxBottom + 200; // 200px gap below existing content
+section.x = 0;
+```
+Always do this scan — even if the page looks empty, other stories may already have sections placed there.
+
 ### 2. Read Navigation Map
 Before generating any frames, read the `## Navigation Map` section in `ui-delivery-spec.md`.
 
