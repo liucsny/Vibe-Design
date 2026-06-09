@@ -85,7 +85,18 @@ Create a named Section in the target Figma file: `<story-name> — <task-id>`.
 Set Section background to `#E5E5E5`.
 Record the Section node ID in task-state.json `stories[].figma_section_id`.
 
-### 2. Generate Frames
+### 2. Read Navigation Map
+Before generating any frames, read the `## Navigation Map` section in `ui-delivery-spec.md`.
+
+- Extract the happy path order from the flow graph (surfaces marked `★`).
+- Note error recovery paths (marked `⚠`) — these frames should be grouped near their trigger surface.
+- Note any multi-step loops — frames in a loop should be placed adjacent to each other.
+
+This order determines how frames are arranged in Step 3.
+
+If no Navigation Map is present in the spec, stop and log a warning: "Navigation Map missing from delivery spec — frame order will be arbitrary. Re-run delivery-spec-writer to add a Navigation Map."
+
+### 3. Generate Frames
 For each surface in `ui-delivery-spec.md`, generate one frame per state.
 
 Frame naming convention: `<Surface Name> / <State>` (e.g., `Algorithm Config / Default`, `Algorithm Config / Empty`).
@@ -98,12 +109,18 @@ For each frame:
 - Apply token values (colors, spacing, radius) from design-brief.md DS section if available.
 - Label all layers semantically — no "Frame 1", "Group 2" layer names.
 
-### 3. Organize in Section
+### 4. Organize in Section
 Place all generated frames inside the Section created in Step 1.
-Arrange frames in user flow order (left to right, or as logical reading order).
+
+**Arrange frames following the Navigation Map order:**
+- Happy path surfaces (★) run left to right as the primary row.
+- Error and recovery frames are placed directly below their trigger surface (not at the end of the canvas).
+- Multi-step loop frames are grouped in a visually distinct cluster.
+- Surfaces not on the main flow are placed in a secondary row below.
+
 Add a Section title frame at the top: `<story-name>` in header text style.
 
-### 4. Write final-ui-reference.md
+### 5. Write final-ui-reference.md
 
 ```markdown
 # Final UI Reference — <story-name>
@@ -130,10 +147,10 @@ Target file: <figma-target-url>
 <Any fallback components and reason>
 ```
 
-### 5. Update task-state.json
+### 6. Update task-state.json
 - Set story's `figma_generation` to `passing`.
 - Record `figma_section_id`.
 - Append timeline entry.
 
-### 6. Write Execution Log
-Write `logs/04-figma-generation-<story-id>.md` using the standard log format. Include: how many frames generated, any blocked components, any spec deviations.
+### 7. Write Execution Log
+Write `logs/04-figma-generation-<story-id>.md` using the standard log format. Include: how many frames generated, frame arrangement rationale from Navigation Map, any blocked components, any spec deviations.

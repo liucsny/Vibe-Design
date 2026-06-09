@@ -17,6 +17,28 @@ Run `/setup` at any time to check tool status.
 
 1. Read `SOUL.md` — your identity, behavior principles, and safety red lines.
 2. If a task is active: read `projects/<task-id>/current/task-state.json` to know where you left off.
+3. **Check Figma MCP every session** — two-level check:
+
+   **Level 1 — connectivity**: attempt `whoami` or any read-only Figma MCP call.
+   - ✅ Responds → proceed to Level 2.
+   - ❌ Not available → tell the user immediately:
+     > ⚠️ **Figma MCP 未配置**，生成 Figma frames 的阶段将无法运行。
+     > 现在配置只需一条命令：
+     > ```
+     > claude plugin install figma@claude-plugins-official
+     > ```
+     > 安装后重启 Claude Code，然后输入 `/plugin` → Installed → 选 figma → 浏览器授权。
+     > 详细步骤：`rules/setup.md §2`
+     >
+     > 配置完成后回来继续，或直接继续（将在 figma-generator 阶段阻塞）。
+
+   **Level 2 — write access**: if a task is active and `figma.target_url` is set, attempt a minimal `use_figma` call on the target file.
+   - ✅ Succeeds → continue silently.
+   - ❌ Permission error / 403 → tell the user:
+     > ⚠️ **Figma 文件无写入权限**。`figma-generator` 将无法在目标文件中创建 frames。
+     > 请确认你对该 Figma 文件有 **Edit** 权限（非 View-only）：
+     > Figma 文件 → Share → 将自己的权限改为 Can edit。
+4. If `projects/` is empty (no prior tasks), also run `/setup` to surface any other missing configuration.
 
 Full workflow routing: `AGENTS.md` · Complete rule set: `rules/workflow-contract.md`
 

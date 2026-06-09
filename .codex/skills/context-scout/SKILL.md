@@ -38,7 +38,48 @@ Based on the PRD's domain (from prd-analysis.json) and user flows:
 
 Do not dump raw research. Synthesize to 3–8 actionable bullet points per section.
 
-### 3. Write design-brief.md
+### 3. Design Research Trigger Assessment
+
+After completing the DS and UX Scout threads, score the task against the following criteria. Each criterion that applies adds 1 point:
+
+| Criterion | Signal |
+|---|---|
+| 2 or more custom components (no DS equivalent, requires novel frame) | From DS Scout gaps list |
+| Domain is `ai-product` or `data-heavy` | From prd-analysis.json |
+| PRD quality score < 7 | From prd-analysis.json |
+| 3 or more novel interaction patterns not covered by standard Vine conventions | From UX Scout findings |
+| Multi-story PRD with 3+ stories | From prd-analysis.json |
+
+**If score ≥ 2 → run Design Research (Step 3a).**
+**If score < 2 → skip to Step 4.**
+
+Record the score and the triggered criteria in the execution log and in the `## Design Research` section of the brief (even if research was skipped, note "Research not triggered — score: N/5").
+
+### 3a. Design Research (conditional)
+
+Run only when triggered. Research is targeted — do not do general background reading. Focus only on the specific gaps identified in Steps 1 and 2.
+
+**Research scope — address each of the following that applies:**
+
+1. **Novel component patterns:** For each custom component identified in DS Scout (e.g. diff viewer, prompt editor with toolbar, token estimator), search for 2–3 real-world implementations. Describe: layout structure, key interaction states, common conventions, pitfalls to avoid.
+
+2. **Domain-specific conventions:** For the PRD's domain (e.g. ai-product, data-heavy, workflow), identify conventions that are not obvious from general UI knowledge — e.g. how LLM output is typically displayed, how batch job status is typically surfaced, how configuration panels are typically structured for ML tools.
+
+3. **Complex flow patterns:** For any multi-step loops or non-linear flows identified in UX Scout, research how similar flows are handled in comparable products. Focus on error recovery, progressive disclosure, and confirmation gate patterns.
+
+**Output format for each research finding:**
+
+```
+### [Component or Pattern Name]
+- **Common implementations:** [2–3 examples with description, no URLs needed]
+- **Key conventions:** [bullet list of what's standard]
+- **Recommended approach for this PRD:** [1–2 sentences — a specific recommendation, not a survey]
+- **Pitfalls to avoid:** [bullet list]
+```
+
+Synthesize — do not dump raw notes. Each finding must end with a "Recommended approach" that delivery-spec-writer can act on directly.
+
+### 4. Write design-brief.md
 
 Structure:
 ```markdown
@@ -62,16 +103,20 @@ Structure:
 ## Accessibility Constraints
 <Specific a11y requirements for this PRD's domain>
 
+## Design Research
+<Score: N/5. Triggered: yes/no. If yes: structured findings per component/pattern.>
+<If not triggered: "Research not triggered — score: N/5. Standard Vine patterns apply.">
+
 ## Open Questions
 <Design decisions that could not be resolved from the PRD and DS — for PM or design team>
 ```
 
 The brief must use clear headers so delivery-spec-writer can load only the relevant section (e.g., "## Design System") without reading the full file.
 
-### 4. Update task-state.json
+### 5. Update task-state.json
 - Set `shared.context_scout` to `passing`.
 - If DS is configured, set `figma.library_adapter` to the adapter id.
 - Append timeline entry.
 
-### 5. Write Execution Log
-Write `logs/02-context-scout.md` using the standard log format from workflow-contract.md §11.
+### 6. Write Execution Log
+Write `logs/02-context-scout.md` using the standard log format from workflow-contract.md §11. Include: research trigger score, criteria that fired, and (if triggered) a one-line summary of each research finding.

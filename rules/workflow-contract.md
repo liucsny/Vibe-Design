@@ -65,6 +65,8 @@ Rules:
 - Produce a single `design-brief.md` shared by all stories.
 - DS Scout thread: check `.codex/design-systems/` for configured design system. If found, verify component availability and token coverage for PRD requirements. If empty/missing, note the gap and continue.
 - UX Scout thread: identify relevant product patterns, interaction conventions, a11y requirements for the domain and PRD type.
+- Design Research trigger: after DS and UX Scout, score the task on 5 criteria (custom component count, domain complexity, PRD quality, novel pattern count, story count). Score ≥ 2 → run targeted Design Research for each identified gap and write findings into `## Design Research` section of the brief. Score < 2 → note "not triggered" and skip. Always record the score.
+- Research must be targeted and synthesized — each finding must end with a concrete "Recommended approach" that delivery-spec-writer can act on. Do not dump raw notes.
 - The brief must be structured and queryable — use clear headers so downstream agents can load specific sections without reading the full file.
 - Do not include raw research dumps. Synthesize to actionable constraints.
 
@@ -74,10 +76,11 @@ Rules:
 
 `delivery-spec-writer` must:
 - Produce one `ui-delivery-spec.md` per story.
-- Cover every surface in the story. For each surface: name, entry point, all required states (default, loading, empty, error, success, and any PRD-specific states), component plan, layout structure.
+- Cover every surface in the story. For each surface: name, entry point, all required states (default, loading, empty, error, success, and any PRD-specific states), component plan, layout structure, and a "Navigation Outputs" list of every user action that causes a transition.
+- Write a `## Navigation Map` section at the end of the spec. The map must: show every surface-to-surface transition as a flow graph, mark the happy path (★) and error recovery paths (⚠), describe multi-step loops, and account for every "Completion" condition in every surface. A completion condition not present in the map is a spec gap that must be resolved before marking `delivery_spec` as passing.
 - Map components to library entries when a design system is configured.
 - Flag surfaces where the PRD is ambiguous rather than guessing silently.
-- The spec is the sole input contract for `figma-generator`. If the spec is incomplete, figma-generator must block, not guess.
+- The spec is the sole input contract for `figma-generator`. If the spec is incomplete or the Navigation Map is missing, figma-generator must log a warning and arrange frames arbitrarily — it must not block on this alone, but the gap must be noted in the execution log.
 
 ---
 
