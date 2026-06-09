@@ -121,8 +121,8 @@ const nodes = figma.currentPage.children;
 const maxBottom = nodes.length > 0
   ? Math.max(...nodes.map(n => n.y + n.height))
   : 0;
-section.y = maxBottom + 200; // 200px gap below existing content
-section.x = 0;
+section.y = maxBottom + 400; // 400px gap below existing content
+section.x = 0; // left-align all sections
 ```
 Always do this scan — even if the page looks empty, other stories may already have sections placed there.
 
