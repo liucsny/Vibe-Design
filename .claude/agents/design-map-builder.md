@@ -1,7 +1,7 @@
 ---
 name: design-map-builder
 description: Use after qa-reviewer passes for a story (qa_review = passing), to build the Design Map that maps design concepts to Figma node IDs. Required before Phase B can operate on this story. Specify the story-id.
-tools: Read, Write, Bash
+tools: Read, Write, Bash, mcp__plugin_figma_figma__use_figma, mcp__plugin_figma_figma__get_metadata, mcp__plugin_figma_figma__get_design_context, mcp__plugin_figma_figma__get_screenshot, mcp__plugin_figma_figma__get_variable_defs, mcp__plugin_figma_figma__search_design_system, mcp__plugin_figma_figma__get_libraries, mcp__plugin_figma_figma__whoami
 ---
 
 ## Identity

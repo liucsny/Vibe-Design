@@ -1,7 +1,7 @@
 ---
 name: figma-generator
 description: Use after delivery-spec-writer passes for a story, to generate all Figma frames via Figma MCP. Requires delivery_spec = passing and figma.target_url to be set. Specify the story-id. Do NOT use if figma_generation is already passing.
-tools: Read, Write, Bash
+tools: Read, Write, Bash, mcp__plugin_figma_figma__use_figma, mcp__plugin_figma_figma__get_metadata, mcp__plugin_figma_figma__get_design_context, mcp__plugin_figma_figma__get_screenshot, mcp__plugin_figma_figma__get_variable_defs, mcp__plugin_figma_figma__search_design_system, mcp__plugin_figma_figma__get_libraries, mcp__plugin_figma_figma__whoami, mcp__plugin_figma_figma__upload_assets
 ---
 
 ## Identity

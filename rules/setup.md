@@ -57,38 +57,30 @@ Full setup guide (internal): https://bytedance.larkoffice.com/docx/PxZadXlz2o4mC
 
 Figma MCP lets `figma-generator` and `design-map-builder` create and read Figma frames via the Figma REST API.
 
-### Step 1 — Get a Figma Personal Access Token
+### Step 1 — Install the Figma Remote MCP plugin
 
-1. Open Figma → click your avatar (top-left) → **Settings**
-2. Scroll to **Security** → **Personal access tokens**
-3. Click **Generate new token**, give it a name (e.g. `vibe-design`), set expiry
-4. **Copy the token immediately** — it won't be shown again
+In your terminal:
 
-### Step 2 — Add MCP Server to Claude Code
-
-Add the following to your Claude Code MCP config (`~/.claude/claude_desktop_config.json` or the project's `.mcp.json`):
-
-```json
-{
-  "mcpServers": {
-    "figma": {
-      "command": "npx",
-      "args": ["-y", "@figma/mcp-server"],
-      "env": {
-        "FIGMA_API_TOKEN": "your-token-here"
-      }
-    }
-  }
-}
+```bash
+claude plugin install figma@claude-plugins-official
 ```
 
-Replace `your-token-here` with the token from Step 1.
+### Step 2 — Restart Claude Code
 
-> **Security note:** Never commit this token to git. If you use a project-level `.mcp.json`, add it to `.gitignore`.
+MCP servers are loaded at startup. Restart Claude Code after running the install command.
 
-### Step 3 — Restart Claude Code
+### Step 3 — Authorize via browser
 
-MCP servers are loaded at startup. Restart Claude Code after editing the config.
+1. In Claude Code, type `/plugin` → navigate to the **Installed** tab
+2. Select `figma` → press Enter to open the authorization page
+3. Press Enter again to launch the browser auth flow
+4. Click **Allow access** to grant Claude Code access to your Figma account
+
+### Step 4 — Verify
+
+Run `/plugin` again. Under the **Installed** tab, `figma` should show **connected**.
+
+> **Note:** This uses Figma's official Remote MCP server (`https://mcp.figma.com/mcp`) with OAuth — no Personal Access Token required.
 
 ### Step 4 — Set the Figma target URL
 

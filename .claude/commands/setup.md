@@ -21,16 +21,24 @@ lark-cli auth status
 - ✅ Shows active user → authenticated
 - ❌ Not authenticated → tell the user to run `lark-cli config init --new`
 
-### 2. Figma MCP
-Attempt a minimal Figma MCP tool call (e.g., list available tools or ping the API).
-- ✅ Responds → Figma MCP is active
+### 2. Figma MCP — connectivity
+Attempt `whoami` or any read-only Figma MCP call.
+- ✅ Responds → Figma MCP is active, proceed to check 2b.
 - ❌ Tool not found or error → tell the user:
   > Figma MCP is not configured. You need it to generate Figma frames.
   > Setup steps: `rules/setup.md §2`
   > Quick summary:
-  > 1. Get a Personal Access Token from Figma Settings → Security
-  > 2. Add to your MCP config: `~/.claude/claude_desktop_config.json`
-  > 3. Restart Claude Code
+  > 1. Run: `claude plugin install figma@claude-plugins-official`
+  > 2. Restart Claude Code
+  > 3. Type `/plugin` → Installed → select figma → authorize in browser
+
+### 2b. Figma MCP — write access
+If `figma.target_url` is set in the active task, attempt a minimal `use_figma` call on that file.
+- ✅ Succeeds → write access confirmed.
+- ❌ Permission error / 403 → tell the user:
+  > ⚠️ Figma 文件无写入权限。figma-generator 将无法创建 frames。
+  > 请在 Figma 中将自己的权限改为 **Can edit**（Share → 修改权限）。
+- ❌ No target URL set → skip this check (handled in check 3 below).
 
 ### 3. Figma target URL (for active task)
 If a task is active (projects/ contains a task-state.json), check `figma.target_url`:
