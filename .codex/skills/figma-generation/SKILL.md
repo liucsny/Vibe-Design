@@ -150,6 +150,23 @@ For each frame:
 - Apply token values (colors, spacing, radius) from design-brief.md DS section if available.
 - Label all layers semantically — no "Frame 1", "Group 2" layer names.
 
+**Mandatory post-creation checks (run for every frame before moving to the next):**
+
+1. **Auto Layout sizing — prevent height-collapse.** After creating any Auto Layout frame, immediately set:
+   ```js
+   frame.primaryAxisSizingMode = "AUTO";   // hug contents vertically
+   frame.counterAxisSizingMode = "FIXED";  // respect explicit width
+   ```
+   For child frames with `layoutMode = "NONE"` (absolute positioning), `primaryAxisSizingMode` has no effect — call `node.resize(width, height)` directly to set the explicit height. **Never leave a frame at its default creation height (typically 10px).** This is the single most common generation defect.
+
+2. **Width containment — prevent overflow.** Every child element must have `width ≤ parent container width - (parent horizontal padding × 2)`. Specifically:
+   - Text nodes: set `textAutoResize = "HEIGHT"` and `width = container_inner_width` so text wraps rather than overflows.
+   - Banner / notice frames: set width to match parent panel interior, not to a fixed pixel value.
+   - Form fields: each field should span the full container inner width (e.g., if config panel is 568px with 24px padding each side, field width = 520px).
+   - Modal sub-components (Header, Body, Footer): always set width = parent modal width. Never create them at a default width.
+
+3. **Validation Error states — required error nodes.** For every surface that has a Validation Error state, inspect each form field that can have an error condition (as defined in the spec's Validation section). Each such field must have an inline error text child node with the spec-defined error message. Missing error nodes are a P1 defect — do not skip them even for fields that seem "less important".
+
 ### 4. Organize in Section
 Place all generated frames inside the Section created in Step 1.
 

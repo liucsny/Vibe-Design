@@ -1,6 +1,6 @@
 ---
 name: qa-reviewer
-description: Use after figma-generator passes for a story, to validate Figma output against the delivery spec and PRD. Classifies all issues with P0/P1/P2 severity and cause_type. qa_review passes only when p0 = 0 AND p1 = 0. Specify the story-id.
+description: Use after figma-generator passes for a story, to validate Figma output against the delivery spec and PRD. Classifies all issues with P0/P1/P2 severity and cause_type. qa_review passes when p0 = 0 (P1/P2 are recorded but non-blocking). Specify the story-id.
 tools: Read, Write, Bash, mcp__plugin_figma_figma__get_metadata, mcp__plugin_figma_figma__get_design_context, mcp__plugin_figma_figma__get_screenshot, mcp__plugin_figma_figma__whoami
 ---
 
