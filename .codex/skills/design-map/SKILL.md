@@ -17,8 +17,9 @@ description: Scan all story Figma frames and build design-map.json mapping desig
 
 ## Preflight
 1. Confirm story's `qa_review = passing`.
-2. Confirm Figma MCP is reachable via `whoami` — do NOT use `get_metadata` on the file URL for this check.
-3. **Large tool-result guard**: If a Figma MCP response file exceeds 25K tokens, use `offset` + `limit` on the Read tool to extract the relevant section, or grep for the target `node_id` to find the byte offset first.
+2. Confirm `quality_gate.p1 = 0`. If p1 > 0: set `design_map` to `blocked`, populate `blocked_input_request` with instructions to re-run figma-generator to resolve the P1(s) listed in `scenario-quality-check.md`, then re-run qa-reviewer, then retry design-map-builder. Stop.
+3. Confirm Figma MCP is reachable via `whoami` — do NOT use `get_metadata` on the file URL for this check.
+4. **Large tool-result guard**: If a Figma MCP response file exceeds 25K tokens, use `offset` + `limit` on the Read tool to extract the relevant section, or grep for the target `node_id` to find the byte offset first.
 
 ## Figma MCP Precision Rules
 

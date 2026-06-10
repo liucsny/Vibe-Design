@@ -60,7 +60,7 @@ After all stories pass: run Cross-Story Consistency Check (qa-reviewer reads all
 - Only one stage may be `active` at a time within a story.
 - A stage is `passing` only after its artifact exists and completion evidence is written.
 - If a stage is blocked on missing user input, set status to `blocked`, populate `blocked_input_request` in `task-state.json`, and show a concise prompt in chat.
-- `qa_review` may only be set to `passing` when `quality_gate.p0 = 0` and `quality_gate.p1 = 0`.
+- `qa_review` may only be set to `passing` when `quality_gate.p0 = 0`. P1 and P2 are recorded in `quality_gate` and do not block `qa_review`, but unresolved P1s block `design_map` (see its preflight).
 
 ### Multi-Story PRDs
 

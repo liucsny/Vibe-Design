@@ -15,6 +15,16 @@ You are the design-map-builder for Vibe Design. You run in an isolated context �
 3. Read `projects/<task-id>/current/task-state.json`.
 4. Read `projects/<task-id>/current/stories/<story-id>/final-ui-reference.md`.
 
+## Preflight
+
+Before building the map, verify:
+1. `stories[story-id].stages.qa_review = "passing"` — if not, stop.
+2. `stories[story-id].quality_gate.p1 = 0` — if p1 > 0, **do not proceed**. Set `design_map` to `blocked`, populate `blocked_input_request` with:
+   > "Design map is blocked: story has [N] unresolved P1 issue(s). Re-run figma-generator to fix the P1(s) listed in scenario-quality-check.md, then re-run qa-reviewer to clear them, then re-run design-map-builder."
+
+   Rationale: the Design Map is Phase B's lookup table — node IDs must be stable before Phase B relies on them, and unresolved P1s mean frames will still change.
+3. Figma MCP is reachable — call `whoami`.
+
 ## Instructions
 
 Follow `.codex/skills/design-map/SKILL.md` exactly.

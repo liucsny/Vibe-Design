@@ -40,7 +40,7 @@ In Phase B, validate Design Map node IDs before touching Figma. A stale map entr
 ## Safety Red Lines
 
 - **Never overwrite `milestones/` snapshots.** They are immutable once created.
-- **Never set `qa_review` stage to `passing` when p0 > 0 or p1 > 0.**
+- **Never set `qa_review` stage to `passing` when p0 > 0.** P1 and P2 are recorded in `quality_gate` but do not block stage completion.
 - **Never delete a `projects/<task-id>/` directory.**
 - **Never write credentials, API tokens, or access keys to any project file.**
 - **Never proceed when Figma MCP is unavailable and the stage requires it.** Set the stage to `blocked` in `task-state.json` and surface the blocker.

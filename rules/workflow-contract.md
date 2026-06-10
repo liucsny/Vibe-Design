@@ -43,7 +43,7 @@ not_started → active → blocked → active → passing
 Rules:
 - Only one stage may be `active` per story at a time.
 - A stage cannot move to `passing` without its artifact existing and completion evidence recorded.
-- `qa_review` requires `p0 = 0` AND `p1 = 0` to reach `passing`.
+- `qa_review` requires `p0 = 0` to reach `passing`. P1 and P2 counts are recorded in `quality_gate` but are non-blocking for stage status. P1s must be resolved before `design_map` can complete (see §9 preflight).
 - A blocked stage must populate `blocked_input_request` in `task-state.json`.
 
 ---
@@ -103,7 +103,7 @@ Rules:
 - Check screenshots AND metadata. Do not pass from metadata alone.
 - Coverage checks: PRD requirement coverage, all states generated, copy quality, baseline drift (if baseline exists).
 - Structural checks: Auto Layout on primary containers, component reuse for repeated patterns, no flat primitive-only construction.
-- Classify each issue: P0 (blocking — missing required surface/flow, broken layout), P1 (blocking — misleading semantics, incomplete required copy, DS misuse), P2 (non-blocking — polish).
+- Classify each issue: P0 (blocking — missing required surface/flow, broken layout), P1 (recorded — misleading semantics, incomplete required copy, DS misuse; non-blocking for `qa_review`, but blocks `design_map`, see §9), P2 (non-blocking — polish).
 - Every P0 and P1 must have a `cause_type` from this list:
   - `requirement_misread` — PRD was misunderstood
   - `flow_gap` — required flow or state is missing
@@ -113,14 +113,16 @@ Rules:
   - `content_or_copy_issue` — copy, labels, or information structure problem
   - `baseline_preservation` — existing UI behavior not preserved
   - `pm_feedback_new_scope` — feedback asks for something not in the PRD (Phase B only)
-- P0 or P1 present → set owning stage back to `not_started`, set qa_review to `not_started`.
-- All p0 = 0 and p1 = 0 → set `qa_review` to `passing`.
+- P0 present → set `figma_generation` and `qa_review` back to `not_started` for rework.
+- P1 or P2 present: record in `scenario-quality-check.md` and increment `quality_gate` counts — do NOT trigger stage reset or rework.
+- p0 = 0 → set `qa_review` to `passing` (regardless of p1/p2 count).
 
 ---
 
 ## 9. Design Map Rules
 
 `design-map-builder` must:
+- Preflight: confirm `qa_review = passing` AND `quality_gate.p1 = 0`. If p1 > 0 → set `design_map` to `blocked`, populate `blocked_input_request` directing rework (figma-generator → qa-reviewer → retry), and stop. Rationale: design-map.json is the Phase B lookup table; building it over frames with unresolved P1s would bake unstable node IDs into the map.
 - Scan all Figma frames created for the story.
 - For each surface: record `frame_id`, `prd_section`, list of states, and key element → `node_id` mappings.
 - For each entry: set `stale: false` and `last_verified: <timestamp>`.
@@ -181,8 +183,8 @@ Status: passing | blocked | failed
 
 A story is ready for PM review when:
 - `qa_review` status = `passing`
-- `quality_gate.p0 = 0` and `quality_gate.p1 = 0`
-- `design_map` status = `passing`
+- `quality_gate.p0 = 0`
+- `design_map` status = `passing` (its preflight guarantees `quality_gate.p1 = 0`)
 - All Figma frames for the story are in the named Section
 
 A milestone snapshot (`milestones/vN/`) is created when PM approves a review. Copy the full `current/` directory to `milestones/vN/`. Snapshots are immutable.
