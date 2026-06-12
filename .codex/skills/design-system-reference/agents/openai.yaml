@@ -1,3 +1,0 @@
-name: design-system-reference
-display_name: "Design System Reference"
-default_prompt: "Use $design-system-reference to create a compact task-specific design system reference from the configured adapter before Final UI generation."

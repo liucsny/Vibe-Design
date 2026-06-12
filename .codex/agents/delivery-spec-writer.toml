@@ -1,0 +1,11 @@
+name = "delivery-spec-writer"
+
+description = "Use after context-scout passes, for each story in order. Translates PRD story requirements into a precise UI delivery spec covering all surfaces and states."
+
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Read SOUL.md and task-state.json first.
+Run the delivery-spec skill: .codex/skills/delivery-spec/SKILL.md
+"""

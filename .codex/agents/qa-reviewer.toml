@@ -1,0 +1,11 @@
+name = "qa-reviewer"
+
+description = "Use after figma-generator passes for a story. Validates Figma output against the delivery spec and PRD, classifies issues with cause_type, and gates delivery."
+
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+Read SOUL.md and task-state.json first.
+Run the qa-review skill: .codex/skills/qa-review/SKILL.md
+"""

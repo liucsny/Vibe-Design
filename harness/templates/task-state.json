@@ -1,153 +1,45 @@
 {
-  "task_id": "<task-id>",
-  "project_root": "projects/<task-id>",
-  "source_prd": {
-    "type": "text | file | link | maintenance",
-    "reference": "",
-    "original_url": "",
-    "derived_title": ""
+  "task_id": "",
+  "created_at": "",
+  "prd_source": {
+    "type": "file | text | lark_url",
+    "value": ""
   },
-  "wip_limit": 1,
-  "active_stage": "intent-requirement",
-  "stages": [
+  "scope_type": "single_story",
+  "shared": {
+    "prd_analysis": "not_started",
+    "context_scout": "not_started"
+  },
+  "stories": [
     {
-      "id": "intent-requirement",
-      "owner": "intent-requirement-analyst",
-      "state": "active",
-      "artifact": "projects/<task-id>/current/intent-requirement.md",
+      "id": "s1",
+      "name": "",
+      "prd_sections": [],
       "depends_on": [],
-      "completion_evidence": [],
-      "blocked_reason": ""
-    },
-    {
-      "id": "flow-spec",
-      "owner": "userflow-designer",
-      "state": "not_started",
-      "artifact": "projects/<task-id>/current/flow-spec.md",
-      "depends_on": ["intent-requirement"],
-      "completion_evidence": [],
-      "blocked_reason": ""
-    },
-    {
-      "id": "surface-generation-spec",
-      "owner": "ui-architecturer",
-      "state": "not_started",
-      "artifact": "projects/<task-id>/current/surface-generation-spec.md",
-      "depends_on": ["flow-spec"],
-      "completion_evidence": [],
-      "blocked_reason": ""
-    },
-    {
-      "id": "final-ui",
-      "owner": "figma-ui-designer",
-      "state": "not_started",
-      "artifact": "projects/<task-id>/current/final-ui-reference.md",
-      "depends_on": ["surface-generation-spec"],
-      "completion_evidence": [],
-      "blocked_reason": ""
-    },
-    {
-      "id": "scenario-quality-check",
-      "owner": "user-advocate",
-      "state": "not_started",
-      "artifact": "projects/<task-id>/current/scenario-quality-check.md",
-      "depends_on": ["final-ui"],
-      "completion_evidence": [],
-      "blocked_reason": ""
-    },
-    {
-      "id": "revision-request",
-      "owner": "revision-manager",
-      "state": "not_started",
-      "artifact": "projects/<task-id>/current/revision-request.md",
-      "depends_on": ["scenario-quality-check"],
-      "completion_evidence": [],
-      "blocked_reason": "",
-      "revision_only": true
+      "stages": {
+        "delivery_spec": "not_started",
+        "figma_generation": "not_started",
+        "qa_review": "not_started",
+        "design_map": "not_started"
+      },
+      "figma_section_id": null,
+      "quality_gate": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 0
+      }
     }
   ],
-  "quality_gate": {
-    "p0_remaining": null,
-    "p1_remaining": null,
-    "p2_risks": [],
-    "delivery_ready": false
-  },
-  "blocked_input_request": {
-    "stage": "",
-    "reason": "",
-    "required_fields": [],
-    "optional_fields": [],
-    "prompt": "",
-    "status": "none"
-  },
-  "baseline": {
-    "mode": "none",
-    "required": false,
-    "status": "none",
-    "source_url": "",
-    "source_file": "",
-    "figma_file_key": "",
-    "figma_node_id": "",
-    "artifact": "projects/<task-id>/current/baseline-reference.md"
-  },
-  "research": {
-    "required": false,
-    "status": "none",
-    "topics": [],
-    "artifact": "projects/<task-id>/current/research-reference.md",
-    "sources": []
-  },
-  "design_system": {
-    "required": true,
-    "status": "none",
-    "adapter_id": "content-ecosystem-design",
-    "source_file_key": "gYZObm5AoqSEwYDfclY4HJ",
-    "source_url": "https://www.figma.com/design/gYZObm5AoqSEwYDfclY4HJ/Content-Ecosystem-Design",
-    "source_library_name": "Content Ecosystem Design",
-    "source_library_key": "",
-    "target_file_subscribed": null,
-    "required_component_keys": [],
-    "missing_component_keys": [],
-    "component_import_policy": "required_public_components_must_be_imported_from_figma_library",
-    "artifact": "projects/<task-id>/current/design-system-reference.md",
-    "adapter_registry": ".codex/design-systems/content-ecosystem-design/registry.md",
-    "component_index_paths": [
-      ".codex/design-systems/content-ecosystem-design/component-library-index.md",
-      ".codex/design-systems/content-ecosystem-design/component-selection-rules.md"
-    ],
-    "recipe_paths": [],
-    "component_families": [],
-    "design_md_sources": [],
-    "conflict_policy": "adapter_over_design_md_unless_prd_requests_new_visual_direction",
-    "open_questions": []
-  },
-  "revision": {
-    "status": "none",
-    "current_revision": "",
-    "source": "",
-    "request_artifact": "",
-    "impacted_stage": "",
-    "base_frame_ids": [],
-    "created_frame_ids": [],
-    "superseded_frame_ids": [],
-    "open_questions": []
+  "phase_b": {
+    "active": false,
+    "current_story_id": null,
+    "changelog_count": 0
   },
   "figma": {
-    "target_url": "",
-    "target_file_key": "",
-    "target_page": "",
-    "target_section": "",
-    "created_section_id": "",
-    "section_title_frame_id": "",
-    "flow_title_frame_ids": [],
-    "mcp_status": "unknown",
-    "mcp_setup_url": "https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/",
-    "created_frame_ids": []
+    "target_url": null,
+    "library_adapter": null
   },
-  "handoff": {
-    "last_updated_by": "",
-    "last_updated_at": "",
-    "next_action": "",
-    "open_questions": []
-  }
+  "blocked_input_request": null,
+  "milestones": [],
+  "timeline": []
 }

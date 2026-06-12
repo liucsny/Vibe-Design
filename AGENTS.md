@@ -1,89 +1,149 @@
-# Vine Vibe Design Agent Guide
+# Vibe Design Agent Guide
 
-Before any task:
+Read `SOUL.md` first. It defines who you are, your behavior principles, and your safety red lines.
 
-1. Read `README.md` for the workflow map and context loading policy.
-2. Read only the relevant section of `docs/workflow-contract.md` for the active stage or decision.
-3. Read `docs/verification.md` only before delivery, QA, harness edits, or gate debugging.
-4. If working on an existing project, check `projects/<task-id>/progress.md` and `projects/<task-id>/session-handoff.md`.
-5. For a new PRD, initialize the task yourself. Users should only need to paste the PRD, attach a PRD document, or provide a Feishu/Lark document link.
+## Prerequisites
 
-If the PRD is an attached/local file, derive a short English title and run:
+Two external tools are required for the full pipeline:
 
-```bash
-scripts/init-task-from-prd.sh --file <prd-file> --title "<short-title>"
-```
+| Tool | Required for | Check |
+|---|---|---|
+| **lark-cli** | `--lark-url` PRD intake | `lark-cli --version` |
+| **Figma MCP** | `figma-generator`, `design-map-builder` | Attempt a Figma MCP read call |
 
-If the PRD is pasted in chat, derive a short English title and run:
+**If a tool is missing:** set the stage to `blocked`, populate `blocked_input_request` with step-by-step setup instructions (see each skill's Preflight section), and stop. Do not skip or work around a missing tool. Full setup guide: `rules/setup.md`.
 
-```bash
-scripts/init-task-from-prd.sh --text "<prd text>" --title "<short-title>"
-```
+## Quick Start — New Task from PRD
 
-If the PRD is a Feishu/Lark docx or wiki link, derive a short English title and run:
+When a user provides a PRD (pasted text, local file, or Feishu/Lark link), initialize the task and start Phase A:
 
 ```bash
-scripts/init-task-from-prd.sh --lark-url "<docx-or-wiki-url>" --title "<short-title>"
+# PRD as Feishu/Lark link
+scripts/init-task-from-prd.sh --lark-url "<url>" --title "<short-english-title>"
+
+# PRD as local file
+scripts/init-task-from-prd.sh --file <path> --title "<short-english-title>"
+
+# PRD pasted in chat
+scripts/init-task-from-prd.sh --text "<prd-text>" --title "<short-english-title>"
 ```
 
-The script fetches the document through `lark-cli docs +fetch --api-version v2`, writes the fetched Markdown to `current/prd.md`, and records the original URL in `task-state.json`.
+The script creates `projects/<task-id>/` with the standard directory structure and writes `current/prd.md` and `current/task-state.json`.
 
-## Core Rules
+---
 
-- **Dual-Core Alignment**: PRD is the "North Star" (source of truth) and the direct upstream artifact is the "Execution Contract". These are the primary inputs for any stage.
-- Agents read the PRD, direct upstream artifact, current `task-state.json`, and summarized context artifacts first.
-- **Hard Constraint for Older Artifacts**: Agents MUST NOT load older passing artifacts by default. Older passing artifacts (e.g., loading `intent-requirement.md` during `final-ui`) MAY ONLY be loaded if the direct upstream artifact contains explicit ambiguities, missing data references, or contradictions that block the current stage's execution. If loaded, it must strictly be used to resolve the specific data gap (fidelity check) and must not be used to bypass the upstream artifact's instructions.
-- Agents write only their owned artifact plus `task-state.json`.
-- Project-specific progress and handoff files live in `projects/<task-id>/`.
-- Use the generated `task_id` from `task-state.json`; do not rename it.
-- Only one stage may be `active`.
-- A stage is `passing` only after its artifact and completion evidence exist.
-- If a stage is blocked on missing user input, populate `blocked_input_request` in `task-state.json` and show a concise form-style prompt in chat.
-- After the user provides requested input, write it to `task-state.json`, clear `blocked_input_request`, and resume the blocked stage.
-- If a PRD modifies an existing UI, request or use a current Figma link/screenshot and summarize it in `baseline-reference.md`; downstream agents should read the summary, not raw baseline dumps, unless needed.
-- If a task needs background knowledge, references, best practices, or current external examples, summarize research in `research-reference.md`; downstream agents should read the summary, not raw search results, unless fresh verification is needed.
-- Baseline and research are independent optional Context Intake artifacts; one does not exclude the other.
-- Do not use Vine design skills before Final UI generation or later UI review/fix work.
-- Final UI requires Figma MCP and `task-state.json.figma.target_url`.
-- Final delivery requires Scenario / Quality Check with `P0/P1 remaining: 0`.
-- After delivery, PM feedback must enter the revision loop through `revision-manager`; do not directly patch Figma or upstream artifacts from unstructured feedback.
-- Revisions should preserve previous frames by default and create versioned replacement frames unless the user explicitly asks to overwrite.
+## Phase A: Foundation Build
 
-## Context Loading
+**Goal:** Turn a PRD into a complete, high-quality initial design. Run once per PRD (or per significant PRD change).
 
-- Load the active stage skill only; do not preload every skill.
-- Use `baseline-reference.md`, `research-reference.md`, and `design-system-reference.md` as compressed context. Avoid raw Figma dumps, screenshots, or web results unless the active stage truly needs them.
-- Load Vine design skills only during Final UI generation, Scenario / Quality Check, or later UI review/fix work.
-- Load detailed references, such as `structured-figma-gates.md` or adapter recipes, only when the current stage names them as required.
-- Keep `progress.md` and `session-handoff.md` short: current state, next action, blockers, and latest evidence only.
+### Shared Stages (run once, before any story work)
 
-## Stage Order
-
-```text
-intent-requirement
-  -> flow-spec
-  -> surface-generation-spec
-  -> final-ui
-  -> scenario-quality-check
+```
+① prd-analyst        → current/prd-analysis.json
+② context-scout      → current/design-brief.md
 ```
 
-## Revision Loop
+### Per-Story Loop (run for each story in dependency order)
 
-```text
-reviewable delivery
-  -> revision-request
-  -> routed stage:
-       final-ui
-       surface-generation-spec
-       flow-spec
-       intent-requirement
-  -> scenario-quality-check
-  -> new reviewable delivery
 ```
+③ delivery-spec-writer  → current/stories/<story-id>/ui-delivery-spec.md
+④ figma-generator       → Figma frames + current/stories/<story-id>/final-ui-reference.md
+⑤ qa-reviewer           → current/stories/<story-id>/scenario-quality-check.md
+⑥ design-map-builder    → current/stories/<story-id>/design-map.json
+```
+
+After all stories pass: run Cross-Story Consistency Check (qa-reviewer reads all final-ui-reference.md files), then create `milestones/v0/` snapshot.
+
+### Stage Status Rules
+
+- Statuses: `not_started | active | blocked | passing`
+- Only one stage may be `active` at a time within a story.
+- A stage is `passing` only after its artifact exists and completion evidence is written.
+- If a stage is blocked on missing user input, set status to `blocked`, populate `blocked_input_request` in `task-state.json`, and show a concise prompt in chat.
+- `qa_review` may only be set to `passing` when `quality_gate.p0 = 0`. P1 and P2 are recorded in `quality_gate` and do not block `qa_review`, but unresolved P1s block `design_map` (see its preflight).
+
+### Multi-Story PRDs
+
+When `scope_type = "multi_story"`:
+- Run shared stages once.
+- Run per-story loop for each story in `task-state.json.stories`, respecting `depends_on` order.
+- Default: sequential. Only parallelize if PM explicitly confirms zero UI-pattern dependency between stories.
+- After all stories complete: run Cross-Story Consistency Check.
+
+---
+
+## Phase B: Adjustment Loop
+
+**Goal:** Respond to PM feedback or PRD changes quickly. Use the Design Map to skip the pipeline when possible.
+
+Trigger: PM gives feedback, or user says "adjust / change / fix / [describes a change]".
+
+### Step B0 — Story Attribution
+
+Which story does this change belong to?
+- Single story → continue.
+- Spans multiple stories → split into separate changes, route each independently.
+- Affects shared layer (global navigation, design language) → **Escalate**, affects all stories.
+
+### Step B1 — Scope Check
+
+Is this change within the current PRD?
+- Yes → continue to B2.
+- No → stop. Tell the user: *"This looks like new scope. Please update the PRD first, then I can run Phase A for the affected story."*
+
+### Step B2 — Triage
+
+| Change Type | Examples | Path | Target |
+|---|---|---|---|
+| SMALL | copy, color, spacing, component variant | HOT FIX | fast |
+| MEDIUM | missing state, layout change, error handling | SURFACE | moderate |
+| LARGE | new page, new flow, navigation change | ESCALATE → Phase A | as needed |
+| New Story | PM adds a new independent module | mini Phase A | from delivery-spec-writer |
+
+**HOT FIX path:**
+1. Validate Design Map node IDs before touching Figma (check `stale` flags).
+2. Apply change via Figma MCP directly.
+3. Run lightweight QA (changed nodes + DS compliance only).
+4. Update `design-map.json` if new nodes created.
+5. Append to `current/changelog.md`.
+6. If change affects semantics or states → also update `ui-delivery-spec.md`.
+
+**SURFACE path:**
+1. Locate affected surfaces in Design Map.
+2. Re-run delivery-spec-writer for affected surfaces only.
+3. Re-run figma-generator for affected surfaces only.
+4. Run targeted QA + light regression on adjacent surfaces.
+5. Rebuild affected Design Map entries.
+6. Append to `current/changelog.md`.
+
+**ESCALATE path:**
+1. Mark affected story stages as `not_started` in `task-state.json`.
+2. Re-enter Phase A from the appropriate stage (delivery-spec-writer or earlier).
+3. Run full QA after regeneration.
+4. Rebuild full Design Map for affected story.
+
+### Phase B Completion
+
+After PM Review approval: run Gate QA (full), create `milestones/vN/` snapshot, append to `learning-report.md`.
+
+---
+
+## Context Loading Policy
+
+- Read `SOUL.md` and `task-state.json` at the start of every session.
+- Load only the skill file for the active stage. Do not preload other skills.
+- Load `design-brief.md` when running delivery-spec-writer, figma-generator, or qa-reviewer.
+- Load `ui-delivery-spec.md` only for the story being actively worked on.
+- Do not load Figma raw node dumps into context. Use `final-ui-reference.md` summaries.
+- Load `design-map.json` only during Phase B Hot Fix or Surface paths.
+
+## Design Systems
+
+Design system constraints live under `.codex/design-systems/` when configured. If the directory is empty or missing, note the gap in `design-brief.md` and proceed with Vine product patterns and PRD requirements only. Do not block Phase A on missing design system configuration.
 
 ## Session Exit
 
-Before ending a session, update:
-- `projects/<task-id>/progress.md`, if a task is active
-- `projects/<task-id>/session-handoff.md`, if a task is active
-- the active task's `task-state.json`, if any
+Before ending any session where a task is active:
+1. Update `task-state.json` — set the correct stage status and `timeline` entry.
+2. Write the execution log for the last completed stage to `projects/<task-id>/logs/`.
+3. If a stage is mid-execution, set status to `active` and note the next action in `blocked_input_request` or in the log.

@@ -1,125 +1,171 @@
-# Vine Vibe Design
+# Vibe Design
 
-Vine Vibe Design turns a PM PRD into reviewable Vine UI drafts in Figma, then supports PM feedback as repeatable revisions.
+Vibe Design turns a PM PRD into reviewable Vine UI drafts in Figma, then supports PM feedback as repeatable revisions. See `SOUL.md` for agent identity and principles; see `AGENTS.md` for workflow routing.
 
 ## Workflow
 
-```text
-PRD
-  -> Context Intake
-       optional Baseline Reference
-       optional Research Reference
-       required Design System Reference
-  -> Intent / Requirement
-  -> Flow Spec
-  -> Surface Generation Spec
-  -> Final UI in Figma
-  -> Scenario / Quality Check
-  -> Reviewable Delivery
-  -> optional PM Feedback / Revision Request
+### Phase A — Foundation Build
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  INPUT                                                              │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │  PRD  (file / pasted text / Lark URL)                       │   │
+│  └────────────────────────┬────────────────────────────────────┘   │
+│                           │                                         │
+│            ╔══════════════▼══════════════╗                          │
+│            ║       prd-analyst           ║  → prd-analysis.json    │
+│            ╚══════════════╤══════════════╝                          │
+│                           │                                         │
+│            ╔══════════════▼══════════════╗                          │
+│            ║       context-scout         ║  → design-brief.md      │
+│            ╚══════════════╤══════════════╝                          │
+│                           │                                         │
+│              ┌────────────▼─────────────┐                           │
+│              │  per story (s1 → s2 …)   │  respects depends_on     │
+│              │                          │                           │
+│              │  ╔══════════════════╗    │                           │
+│              │  ║ delivery-spec-   ║    │  → ui-delivery-spec.md   │
+│              │  ║ writer           ║    │                           │
+│              │  ╚════════╤═════════╝    │                           │
+│              │           │              │                           │
+│              │  ╔════════▼═════════╗    │                           │
+│              │  ║ figma-generator  ║    │  → final-ui-reference.md │
+│              │  ╚════════╤═════════╝    │    + Figma frames         │
+│              │           │              │                           │
+│              │  ╔════════▼═════════╗    │                           │
+│              │  ║  qa-reviewer     ║    │  → scenario-quality-     │
+│              │  ╚════════╤═════════╝    │    check.md              │
+│              │           │  p0=0 p1=0   │                           │
+│              │  ╔════════▼═════════╗    │                           │
+│              │  ║ design-map-      ║    │  → design-map.json       │
+│              │  ║ builder          ║    │                           │
+│              │  ╚══════════════════╝    │                           │
+│              └──────────────────────────┘                           │
+│                           │                                         │
+│              (multi-story) Cross-Story Consistency Check            │
+│                           │                                         │
+│                    milestones/v0/                                   │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-Each stage reads the PRD plus its direct upstream contract, and writes only its owned artifact plus `task-state.json`.
+### Phase B — Adjustment Loop
 
-## Context Loading
-
-Use progressive disclosure by default:
-- start from `task-state.json`, PRD, and the active stage's direct upstream artifact
-- read summarized context artifacts only when present: `baseline-reference.md`, `research-reference.md`, `design-system-reference.md`
-- load one active stage skill, plus only the small reference files it explicitly asks for
-- avoid raw Figma metadata, raw screenshots, full web search logs, and full design-system files unless the current stage needs them
-- use `docs/verification.md` for delivery or harness checks, not as default generation context
-
-DESIGN.md files can be used as source material for Design System Intake. They should be summarized into `design-system-reference.md` through the active adapter, not loaded directly by downstream stages.
+```
+  PM Feedback
+       │
+       ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  TRIAGE                                                         │
+  │                                                                 │
+  │  SMALL ──────► HOT FIX                                         │
+  │  copy, color,   validate Design Map node IDs                   │
+  │  spacing        → edit Figma directly                          │
+  │                 → update changelog                             │
+  │                                                                 │
+  │  MEDIUM ─────► SURFACE                                         │
+  │  missing state  re-run delivery-spec + figma-generator + QA   │
+  │  layout change  for affected surfaces only                     │
+  │                                                                 │
+  │  LARGE ──────► ESCALATE → re-enter Phase A                    │
+  │  new page,      from appropriate stage                         │
+  │  new flow                                                      │
+  │                                                                 │
+  │  NEW SCOPE ──► STOP  ask PM to update PRD first               │
+  └───────────────────────────┬─────────────────────────────────────┘
+                              │
+                         PM Review
+                              │
+                      milestones/vN/
+```
 
 ## Repository Layout
 
 ```text
-docs/                 reusable workflow contract and verification rules
-harness/templates/    task-state, progress, handoff templates
-scripts/              task initialization and verification scripts
-.codex/agents/        stage agents
-.codex/skills/        stage instructions
-projects/<task-id>/   one self-contained PRD/design task
-```
+SOUL.md                   agent identity, principles, safety red lines
+AGENTS.md                 workflow routing, phase rules, context policy
 
-Project files:
+.codex/agents/            one .toml per agent (6 total)
+.codex/skills/            one SKILL.md per stage (6 total)
+.codex/design-systems/    design system adapters (configure per project)
 
-```text
-projects/<task-id>/
-├── progress.md
-├── session-handoff.md
-└── current/
-    ├── task-state.json
-    ├── prd.md
-    ├── baseline-reference.md
-    ├── research-reference.md
-    ├── design-system-reference.md
-    ├── intent-requirement.md
-    ├── flow-spec.md
-    ├── surface-generation-spec.md
-    ├── final-ui-reference.md
-    ├── scenario-quality-check.md
-    └── revision-request.md
+docs/
+  workflow-contract.md    authoritative rules for all agents
+
+harness/templates/
+  task-state.json         template for new task state files
+
+scripts/
+  init-task-from-prd.sh   initialize a task from PRD (file / text / Lark URL)
+  verify-harness.sh       validate harness structure after changes
+
+projects/<task-id>/       one self-contained task
+  current/
+    prd.md
+    prd-analysis.json
+    design-brief.md
+    changelog.md
+    stories/<story-id>/
+      ui-delivery-spec.md
+      final-ui-reference.md
+      scenario-quality-check.md
+      design-map.json
+  logs/
+    01-prd-analysis.md
+    02-context-scout.md
+    03-delivery-spec-<id>.md
+    04-figma-generation-<id>.md
+    05-qa-review-<id>.md
+    06-design-map-<id>.md
+  milestones/
+    v0/   (Phase A baseline)
+    vN/   (post-PM-review snapshots)
+
+knowledge/
+  failure_patterns/       cross-task failure analysis
+  quality_cases/          high-quality design case references
+
+PRDs/                     raw PRD files (optional staging area)
 ```
 
 ## Start A Task
 
-For pasted PRDs:
-
 ```bash
+# PRD as Feishu/Lark document
+scripts/init-task-from-prd.sh --lark-url "<docx-or-wiki-url>" --title "<short-title>"
+
+# PRD as local file
+scripts/init-task-from-prd.sh --file <path> --title "<short-title>"
+
+# PRD pasted in chat
 scripts/init-task-from-prd.sh --text "<prd text>" --title "<short-title>"
 ```
 
-For PRD files:
+The script creates `projects/<task-id>/` with the standard directory structure, writes `current/prd.md` and `current/task-state.json` from the template, and prints the task ID. Use the generated `task_id` — do not rename it.
 
-```bash
-scripts/init-task-from-prd.sh --file <prd-file> --title "<short-title>"
-```
+If `lark-cli` is missing when using `--lark-url`, the script exits and prints the setup guide.
 
-For Feishu/Lark PRD documents:
+## Agents
 
-```bash
-scripts/init-task-from-prd.sh --lark-url "<docx-or-wiki-url>" --title "<short-title>"
-```
-
-This uses `lark-cli docs +fetch --api-version v2` to fetch the document as Markdown, stores it as `projects/<task-id>/current/prd.md`, and records the original URL in `task-state.json`.
-
-If `lark-cli` is missing or not configured, the script exits before creating a task and prints the setup guide: https://bytedance.larkoffice.com/docx/PxZadXlz2o4mCmxjAvfc30H3nQg
-
-Use the generated `task_id`; do not rename it.
-
-See `docs/workflow-contract.md` for artifact ownership, Context Intake, revision routing, and delivery gates.
-
-## Revision Loop
-
-After Scenario / Quality Check passes, PM feedback enters through `revision-manager`.
-
-```text
-PM Feedback
-  -> revision-request.md
-  -> routed stage:
-       final-ui-only      -> final-ui
-       surface-change     -> surface-generation-spec
-       flow-change        -> flow-spec
-       requirement-change -> intent-requirement
-  -> scenario-quality-check
-  -> New Reviewable Delivery
-```
-
-Revisions preserve prior Figma frames by default and create versioned replacements.
+| Agent | Trigger | Artifact |
+|---|---|---|
+| prd-analyst | New task or PRD change | `prd-analysis.json` |
+| context-scout | After prd-analyst passes | `design-brief.md` |
+| delivery-spec-writer | After context-scout, per story | `stories/<id>/ui-delivery-spec.md` |
+| figma-generator | After delivery-spec passes | `stories/<id>/final-ui-reference.md` + Figma |
+| qa-reviewer | After figma-generator passes | `stories/<id>/scenario-quality-check.md` |
+| design-map-builder | After qa-reviewer passes | `stories/<id>/design-map.json` |
 
 ## Delivery Gate
 
-Delivery is reviewable only when required stages are passing, required context intake is summarized, generated Figma evidence exists, and Scenario / Quality Check records `P0/P1 remaining: 0`.
-
-Final UI must instantiate required public Figma components from the active design system library. If the target Figma file has not imported/subscribed to that library, Final UI blocks and asks the user to add it before continuing. Public components must not be redrawn with local frames.
-
-Use `docs/verification.md` for the complete gate checklist. Use `.codex/skills/final-ui-generation/references/structured-figma-gates.md` only during Final UI or QA.
+A story is ready for PM review when:
+- `qa_review = passing` with `p0 = 0` and `p1 = 0`
+- `design_map = passing`
+- All Figma frames are in the named Section
 
 ## Verification
 
-After workflow changes:
+After harness changes:
 
 ```bash
 scripts/verify-harness.sh
